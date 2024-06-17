@@ -244,7 +244,6 @@ void app_mem_free(app_t *a, void *mem)
 		return;
 
 	/* check for tag */
-	/* TODO: make it error out here */
 	membuf_t *mb = (membuf_t *)((Uint8 *)mem - sizeof(membuf_t));
 	if (mb->tag != membuf_tag)
 	{
