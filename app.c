@@ -144,6 +144,9 @@ app_t *app_create_ex(appconfig_t *config)
 	/* start counting time */
 	a->time.then = SDL_GetTicks();
 
+	a->video.base_title = app_string_create(a, SDL_FALSE, config->base_title);
+	SDL_Log("App \"%s\" initialized\n", a->video.base_title);
+
 	return a;
 }
 
@@ -168,6 +171,7 @@ void app_destroy(app_t *a)
 {
 	if (a)
 	{
+		SDL_Log("App \"%s\" shutting down\n", a->video.base_title);
 		if (a->world.entities) app_mem_free(a, a->world.entities);
 		if (a->strings.store) app_mem_free(a, a->strings.store);
 		if (a->strings.tempstore) app_mem_free(a, a->strings.tempstore);

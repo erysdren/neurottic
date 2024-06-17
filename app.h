@@ -108,6 +108,7 @@ typedef struct appconfig {
 typedef struct app {
 	struct {
 		SDL_Window *window;
+		const char *base_title;
 		Uint32 base_width;
 		Uint32 base_height;
 		Uint32 scale;
