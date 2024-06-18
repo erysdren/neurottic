@@ -62,17 +62,8 @@ void SDL_AppQuit(void *appstate)
 int SDL_AppIterate(void *appstate)
 {
 	app_t *a = (app_t *)appstate;
-	int r;
-
-	if ((r = app_iterate(a)) != 0)
-		return r;
-
-	app_frame_start(a);
-	glClearColor(1, 0, 1, 1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	app_frame_end(a);
-
-	return 0;
+	SDL_Log("gametime: %0.4f\n", a->time.time);
+	return app_iterate(a);
 }
 
 int SDL_AppEvent(void *appstate, const SDL_Event *event)

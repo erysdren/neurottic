@@ -74,15 +74,16 @@ typedef struct app app_t;
 typedef struct entity {
 	SDL_bool active;
 	int id;
+	const char *classname;
 	vec3f_t origin;
 	vec3f_t angles;
 	vec3f_t velocity;
 	vec3f_t mins;
 	vec3f_t maxs;
-	int (*event)(app_t *a, entity_t *self, const SDL_Event *event);
-	void (*draw)(app_t *a, entity_t *self);
-	void (*touch)(app_t *a, entity_t *self, entity_t *other);
+	float nextthink;
 	void (*spawn)(app_t *a, entity_t *self);
+	void (*draw)(app_t *a, entity_t *self);
+	void (*think)(app_t *a, entity_t *self);
 	void (*despawn)(app_t *a, entity_t *self);
 } entity_t;
 
@@ -99,7 +100,6 @@ typedef struct appconfig {
 	Uint32 len_stringstore;
 	Uint32 len_stringtempstore;
 	Uint32 num_entities;
-	Uint32 max_entities;
 } appconfig_t;
 
 /*
@@ -123,6 +123,7 @@ typedef struct app {
 		Uint64 now;
 		float dt;
 		float time;
+		float timescale;
 	} time;
 	struct {
 		FILE *file;
@@ -136,7 +137,6 @@ typedef struct app {
 		size_t len_tempstore;
 	} strings;
 	struct {
-		Uint32 max_entities;
 		Uint32 num_entities;
 		entity_t *entities;
 	} world;

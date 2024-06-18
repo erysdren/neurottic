@@ -115,7 +115,6 @@ app_t *app_create_ex(appconfig_t *config)
 
 	/* allocate entities */
 	a->world.num_entities = config->num_entities;
-	a->world.max_entities = config->max_entities;
 	a->world.entities = app_mem_alloc(a, a->world.num_entities * sizeof(entity_t));
 	if (!a->world.entities)
 		return NULL;
@@ -154,6 +153,7 @@ app_t *app_create_ex(appconfig_t *config)
 
 	/* start counting time */
 	a->time.then = SDL_GetTicks();
+	a->time.timescale = 1;
 
 	/* duplicate title */
 	a->video.base_title = app_string_create(a, SDL_FALSE, config->base_title);
@@ -173,8 +173,7 @@ app_t *app_create(const char *base_title, int base_width, int base_height)
 	cfg.log_append = SDL_FALSE;
 	cfg.len_stringstore = 8192;
 	cfg.len_stringtempstore = 8192;
-	cfg.num_entities = 64;
-	cfg.max_entities = 8192;
+	cfg.num_entities = 256;
 
 	return app_create_ex(&cfg);
 }
@@ -201,9 +200,44 @@ int app_iterate(app_t *a)
 
 	/* update deltatime */
 	a->time.now = SDL_GetTicks();
-	a->time.time = (float)a->time.now / 1000.0f;
 	a->time.dt = (float)(a->time.now - a->time.then) / 1000.0f;
 	a->time.then = a->time.now;
+
+	/* update gametime */
+	a->time.time += a->time.dt * a->time.timescale;
+
+	/* start rendering frame */
+	app_frame_start(a);
+
+	/* draw and tick physics on all entities */
+	for (int i = 0; i < a->world.num_entities; i++)
+	{
+		entity_t *e = &a->world.entities[i];
+
+		if (e->active == SDL_TRUE)
+		{
+			/* add velocity to origin */
+			e->origin.x += e->velocity.x * a->time.dt;
+			e->origin.y += e->velocity.y * a->time.dt;
+			e->origin.z += e->velocity.z * a->time.dt;
+
+			/* decrease velocity over time */
+			e->velocity.x = towardsf(e->velocity.x, a->time.dt * 64, 0);
+			e->velocity.y = towardsf(e->velocity.y, a->time.dt * 64, 0);
+			e->velocity.z = towardsf(e->velocity.z, a->time.dt * 64, 0);
+
+			/* think */
+			if (e->think && e->nextthink == a->time.time)
+				e->think(a, e);
+
+			/* draw */
+			if (e->draw)
+				e->draw(a, e);
+		}
+	}
+
+	/* end rendering frame */
+	app_frame_end(a);
 
 	return 0;
 }
@@ -220,6 +254,8 @@ int app_event(app_t *a, const SDL_Event *event)
 void app_frame_start(app_t *a)
 {
 	SDL_GL_MakeCurrent(a->video.window, a->video.context);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void app_frame_end(app_t *a)
@@ -334,10 +370,6 @@ const char *app_string_create(app_t *a, SDL_bool temp, const char *s, ...)
 
 entity_t *app_entity_spawn(app_t *a)
 {
-	/* hopefully guard against OOM */
-	if (!a->world.entities)
-		return NULL;
-
 	/* find an inactive one */
 	for (int i = 0; i < a->world.num_entities; i++)
 	{
@@ -351,24 +383,8 @@ entity_t *app_entity_spawn(app_t *a)
 		}
 	}
 
-	/* arbitrary maximum entity count */
-	if (a->world.num_entities * 2 > a->world.max_entities)
-		return NULL;
-
-	/* allocate more entities if none were free */
-	a->world.entities = SDL_realloc(a->world.entities, a->world.num_entities * sizeof(entity_t) * 2);
-
-	/* setup new entities */
-	for (int i = a->world.num_entities; i < a->world.num_entities * 2; i++)
-	{
-		a->world.entities[i].active = SDL_FALSE;
-		a->world.entities[i].id = i;
-	}
-
-	a->world.num_entities *= 2;
-
-	/* search again */
-	return app_entity_spawn(a);
+	/* none were available */
+	return NULL;
 }
 
 void app_entity_despawn(app_t *a, entity_t *entity)
