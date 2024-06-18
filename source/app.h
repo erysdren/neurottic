@@ -36,6 +36,8 @@ extern "C" {
 #include <float.h>
 
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_opengles2.h>
+#include <cglm/cglm.h>
 
 #include "math.h"
 
