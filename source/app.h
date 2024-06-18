@@ -113,6 +113,7 @@ typedef struct app {
 		Uint32 base_width;
 		Uint32 base_height;
 		Uint32 scale;
+		SDL_GLContext context;
 	} video;
 	struct {
 		const Uint8 *keys;
@@ -171,6 +172,12 @@ void *app_mem_alloc(app_t *a, size_t sz);
 
 /* free memory */
 void app_mem_free(app_t *a, void *mem);
+
+/* begin rendering frame */
+void app_frame_start(app_t *a);
+
+/* end rendering frame */
+void app_frame_end(app_t *a);
 
 /* create a string. if temp == SDL_TRUE, the string will later be overwritten
  * by other temp strings. otherwise, it will be static for the lifetime of the

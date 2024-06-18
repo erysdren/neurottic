@@ -134,8 +134,19 @@ app_t *app_create_ex(appconfig_t *config)
 		&a->video.scale, &window_width, &window_height);
 
 	/* create window */
-	a->video.window = SDL_CreateWindow(config->base_title, window_width, window_height, 0);
+	a->video.window = SDL_CreateWindow(config->base_title, window_width, window_height, SDL_WINDOW_OPENGL);
 	if (!a->video.window)
+		return NULL;
+
+	/* create gl context */
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetSwapInterval(1);
+	a->video.context = SDL_GL_CreateContext(a->video.window);
+	if (!a->video.context)
 		return NULL;
 
 	/* setup input */
@@ -177,6 +188,7 @@ void app_destroy(app_t *a)
 		if (a->strings.store) app_mem_free(a, a->strings.store);
 		if (a->strings.tempstore) app_mem_free(a, a->strings.tempstore);
 		if (a->video.window) SDL_DestroyWindow(a->video.window);
+		if (a->video.context) SDL_GL_DeleteContext(a->video.context);
 		if (a->log.file) fclose(a->log.file);
 		SDL_free(a);
 	}
@@ -203,6 +215,16 @@ int app_event(app_t *a, const SDL_Event *event)
 	if (event->type == SDL_EVENT_QUIT)
 		return 1;
 	return 0;
+}
+
+void app_frame_start(app_t *a)
+{
+	SDL_GL_MakeCurrent(a->video.window, a->video.context);
+}
+
+void app_frame_end(app_t *a)
+{
+	SDL_GL_SwapWindow(a->video.window);
 }
 
 /*
