@@ -23,50 +23,30 @@ SOFTWARE.
 */
 
 #pragma once
-#ifndef _WAD_H_
-#define _WAD_H_
+#ifndef _RTL_H_
+#define _RTL_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <SDL3/SDL.h>
 
+/* RTL type flags */
 enum {
-	WAD_IWAD,
-	WAD_PWAD
+	RTL_COMMBAT = 1 << 1,
+	RTL_LUDICROUS = 1 << 2,
+	RTL_SHAREWARE = 1 << 3,
+	RTL_RANDROTT = 1 << 4
 };
 
-typedef struct wad {
-	Uint32 type;
-	Uint32 num_lumps;
-	struct wad_lump {
-		Uint32 size;
-		char name[8];
-		SDL_IOStream *io;
-		void *data;
-	} *lumps;
+typedef struct rtl {
+	Uint32 typeflags;
+	struct rtl_map {
+	} maps[100];
 	void *data;
-} wad_t;
-
-/* load wad file into memory */
-wad_t *wad_load(const char *filename);
-
-/* free wad file data */
-void wad_free(wad_t *wad);
-
-/* get lump index by name */
-Sint32 wad_get_index(wad_t *wad, const char *name);
-
-/* get lump iostream by name */
-SDL_IOStream *wad_get_io(wad_t *wad, const char *name);
-
-/* get lump data by name */
-void *wad_get_data(wad_t *wad, const char *name);
-
-/* get lump size by name */
-Uint32 wad_get_size(wad_t *wad, const char *name);
+} rtl_t;
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* _WAD_H_ */
+#endif /* _RTL_H_ */
