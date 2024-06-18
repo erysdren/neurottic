@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 project(neurottic)
 
 add_executable(${PROJECT_NAME}
-	app.c main.c math.c
+	app.c main.c math.c wad.c
 )
 
 include(FindPkgConfig)

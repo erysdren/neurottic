@@ -22,51 +22,49 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#define SDL_MAIN_USE_CALLBACKS
-#include <SDL3/SDL_main.h>
+#pragma once
+#ifndef _WAD_H_
+#define _WAD_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#include "app.h"
-#include "wad.h"
+enum {
+	WAD_IWAD,
+	WAD_PWAD
+};
 
-static int die(const char *error)
-{
-	fprintf(stderr, "%s\n", error);
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", error, NULL);
-	return -1;
+typedef struct wad {
+	Uint32 type;
+	Uint32 num_lumps;
+	struct wad_lump {
+		Uint32 size;
+		char name[8];
+		SDL_IOStream *io;
+		void *data;
+	} *lumps;
+	void *data;
+} wad_t;
+
+/* load wad file into memory */
+wad_t *wad_load(const char *filename);
+
+/* free wad file data */
+void wad_free(wad_t *wad);
+
+/* get lump index by name */
+Sint32 wad_get_index(wad_t *wad, const char *name);
+
+/* get lump iostream by name */
+SDL_IOStream *wad_get_io(wad_t *wad, const char *name);
+
+/* get lump data by name */
+void *wad_get_data(wad_t *wad, const char *name);
+
+/* get lump size by name */
+Uint32 wad_get_size(wad_t *wad, const char *name);
+
+#ifdef __cplusplus
 }
-
-int SDL_AppInit(void **appstate, int argc, char **argv)
-{
-	/* init sdl */
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)
-		return die(SDL_GetError());
-
-	/* init app */
-	app_t *a = app_create("NEUROTTIC", 640, 480);
-	if (!a)
-		return die(SDL_GetError());
-
-	/* give it back to sdl */
-	*appstate = a;
-
-	return 0;
-}
-
-void SDL_AppQuit(void *appstate)
-{
-	app_t *a = (app_t *)appstate;
-	app_destroy(a);
-	SDL_Quit();
-}
-
-int SDL_AppIterate(void *appstate)
-{
-	app_t *a = (app_t *)appstate;
-	return app_iterate(a);
-}
-
-int SDL_AppEvent(void *appstate, const SDL_Event *event)
-{
-	app_t *a = (app_t *)appstate;
-	return app_event(a, event);
-}
+#endif
+#endif /* _WAD_H_ */

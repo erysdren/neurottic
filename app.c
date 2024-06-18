@@ -144,6 +144,7 @@ app_t *app_create_ex(appconfig_t *config)
 	/* start counting time */
 	a->time.then = SDL_GetTicks();
 
+	/* duplicate title */
 	a->video.base_title = app_string_create(a, SDL_FALSE, config->base_title);
 	SDL_Log("App \"%s\" initialized\n", a->video.base_title);
 
