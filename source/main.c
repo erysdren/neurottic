@@ -27,6 +27,8 @@ SOFTWARE.
 
 #include "app.h"
 #include "wad.h"
+#include "strings.h"
+#include "fs.h"
 
 static int die(const char *error)
 {
@@ -38,16 +40,21 @@ static int die(const char *error)
 int SDL_AppInit(void **appstate, int argc, char **argv)
 {
 	/* init sdl */
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
 		return die(SDL_GetError());
 
 	/* init app */
 	app_t *a = app_create("NEUROTTIC", 640, 480);
-	if (!a)
-		return die(SDL_GetError());
-
-	/* give it back to sdl */
+	if (!a) return die(SDL_GetError());
 	*appstate = a;
+
+	/* fs */
+	if (!fs_init())
+		return die(SDL_GetError());
+	if (!fs_add_path("lumps"))
+		return die(SDL_GetError());
+	if (!fs_add_wad("darkwar.wad"))
+		return die(SDL_GetError());
 
 	return 0;
 }
@@ -55,6 +62,7 @@ int SDL_AppInit(void **appstate, int argc, char **argv)
 void SDL_AppQuit(void *appstate)
 {
 	app_t *a = (app_t *)appstate;
+	fs_quit();
 	app_destroy(a);
 	SDL_Quit();
 }
@@ -62,7 +70,6 @@ void SDL_AppQuit(void *appstate)
 int SDL_AppIterate(void *appstate)
 {
 	app_t *a = (app_t *)appstate;
-	SDL_Log("gametime: %0.4f\n", a->time.time);
 	return app_iterate(a);
 }
 

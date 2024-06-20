@@ -37,6 +37,8 @@ extern "C" {
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_opengles2.h>
+#include <SDL3_mixer/SDL_mixer.h>
+#include <SDL3_net/SDL_net.h>
 #include <cglm/cglm.h>
 
 #include "math.h"
@@ -65,12 +67,13 @@ extern "C" {
  *
  */
 
+typedef struct entity entity_t;
+typedef struct app app_t;
+
 /*
  * entity
  */
 
-typedef struct entity entity_t;
-typedef struct app app_t;
 typedef struct entity {
 	SDL_bool active;
 	int id;

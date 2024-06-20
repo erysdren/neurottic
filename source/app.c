@@ -85,9 +85,11 @@ app_t *app_create_ex(appconfig_t *config)
 	if (!config)
 		return NULL;
 
-	/* check for SDL video init */
+	/* check for SDL init */
 	if (!SDL_WasInit(SDL_INIT_VIDEO))
-		return NULL;
+		SDL_InitSubSystem(SDL_INIT_VIDEO);
+	if (!SDL_WasInit(SDL_INIT_AUDIO))
+		SDL_InitSubSystem(SDL_INIT_AUDIO);
 
 	/* allocate app structure */
 	a = SDL_calloc(1, sizeof(app_t));
@@ -173,7 +175,7 @@ app_t *app_create(const char *base_title, int base_width, int base_height)
 	cfg.log_append = SDL_FALSE;
 	cfg.len_stringstore = 8192;
 	cfg.len_stringtempstore = 8192;
-	cfg.num_entities = 256;
+	cfg.num_entities = 8192;
 
 	return app_create_ex(&cfg);
 }

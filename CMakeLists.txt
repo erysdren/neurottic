@@ -5,8 +5,10 @@ project(NEUROTTIC)
 set(NEUROTIC_EXEC neurottic)
 set(NEUROTTIC_SOURCES
 	${PROJECT_SOURCE_DIR}/source/app.c
+	${PROJECT_SOURCE_DIR}/source/fs.c
 	${PROJECT_SOURCE_DIR}/source/main.c
 	${PROJECT_SOURCE_DIR}/source/math.c
+	${PROJECT_SOURCE_DIR}/source/strings.c
 	${PROJECT_SOURCE_DIR}/source/wad.c
 )
 
