@@ -22,59 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#define SDL_MAIN_USE_CALLBACKS
-#include <SDL3/SDL_main.h>
+#include <SDL3/SDL.h>
+#include "lump_manager.h"
 
-#include "app.h"
-#include "wad.h"
-#include "strings.h"
-#include "fs.h"
-
-static int die(const char *error)
+int main(int argc, char **argv)
 {
-	fprintf(stderr, "%s\n", error);
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", error, NULL);
-	return -1;
-}
-
-int SDL_AppInit(void **appstate, int argc, char **argv)
-{
-	/* init sdl */
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
-		return die(SDL_GetError());
-
-	/* init app */
-	app_t *a = app_create("NEUROTTIC", 640, 480);
-	if (!a) return die(SDL_GetError());
-	*appstate = a;
-
-	/* fs */
-	if (!fs_init())
-		return die(SDL_GetError());
-	if (!fs_add_path("lumps"))
-		return die(SDL_GetError());
-	if (!fs_add_wad("darkwar.wad"))
-		return die(SDL_GetError());
-
-	return 0;
-}
-
-void SDL_AppQuit(void *appstate)
-{
-	app_t *a = (app_t *)appstate;
-	fs_quit();
-	app_destroy(a);
+	SDL_Init(SDL_INIT_VIDEO);
+	SDL_SetLogPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_VERBOSE);
+	LM_Init();
+	LM_AddWAD("darkwar.wad");
+	LM_AddWAD("remote1.rts");
+	LM_AddPath("lumps");
+	LM_Quit();
 	SDL_Quit();
-}
-
-int SDL_AppIterate(void *appstate)
-{
-	app_t *a = (app_t *)appstate;
-	return app_iterate(a);
-}
-
-int SDL_AppEvent(void *appstate, const SDL_Event *event)
-{
-	app_t *a = (app_t *)appstate;
-	return app_event(a, event);
 }

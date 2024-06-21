@@ -4,15 +4,14 @@ project(NEUROTTIC)
 
 set(NEUROTIC_EXEC neurottic)
 set(NEUROTTIC_SOURCES
-	${PROJECT_SOURCE_DIR}/source/app.c
-	${PROJECT_SOURCE_DIR}/source/fs.c
 	${PROJECT_SOURCE_DIR}/source/main.c
-	${PROJECT_SOURCE_DIR}/source/math.c
-	${PROJECT_SOURCE_DIR}/source/strings.c
-	${PROJECT_SOURCE_DIR}/source/wad.c
+	${PROJECT_SOURCE_DIR}/source/lump_manager.c
 )
 
 add_executable(${NEUROTIC_EXEC} ${NEUROTTIC_SOURCES})
+
+# target_compile_options(${NEUROTIC_EXEC} PUBLIC -fsanitize=address)
+# target_link_options(${NEUROTIC_EXEC} PUBLIC -fsanitize=address)
 
 include(FindPkgConfig)
 pkg_search_module(SDL3 REQUIRED sdl3)
