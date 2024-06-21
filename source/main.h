@@ -23,34 +23,20 @@ SOFTWARE.
 */
 
 #pragma once
-#ifndef _NEUROTTIC_H_
-#define _NEUROTTIC_H_
+#ifndef _MAIN_H_
+#define _MAIN_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* libc */
-#include <math.h>
-#include <stdlib.h>
+int Start(void);
+void Quit(void);
 
-/* SDL */
-#include <SDL3/SDL.h>
-#include <SDL3_net/SDL_net.h>
-#include <SDL3_mixer/SDL_mixer.h>
+int Restart(void);
 
-/* audio manager */
-#include "audio_manager.h"
-
-/* lump manager */
-#include "lump_manager.h"
-
-/* main */
-#include "main.h"
-
-/* math utilities */
-#include "math_utilities.h"
+void Die(const char *fmt, ...);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* _NEUROTTIC_H_ */
+#endif /* _MAIN_H_ */
