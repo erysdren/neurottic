@@ -4,8 +4,10 @@ project(NEUROTTIC)
 
 set(NEUROTIC_EXEC neurottic)
 set(NEUROTTIC_SOURCES
-	${PROJECT_SOURCE_DIR}/source/main.c
+	${PROJECT_SOURCE_DIR}/source/audio_manager.c
 	${PROJECT_SOURCE_DIR}/source/lump_manager.c
+	${PROJECT_SOURCE_DIR}/source/main.c
+	${PROJECT_SOURCE_DIR}/source/math_utilities.c
 )
 
 add_executable(${NEUROTIC_EXEC} ${NEUROTTIC_SOURCES})

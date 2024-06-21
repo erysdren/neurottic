@@ -23,8 +23,8 @@ SOFTWARE.
 */
 
 #pragma once
-#ifndef _LM_H_
-#define _LM_H_
+#ifndef _LUMP_MANAGER_H_
+#define _LUMP_MANAGER_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -94,4 +94,4 @@ Sint32 LM_GetLumpIndex(const char *name);
 #ifdef __cplusplus
 }
 #endif
-#endif /* _LM_H_ */
+#endif /* _LUMP_MANAGER_H_ */

@@ -22,8 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <SDL3/SDL.h>
-#include "lump_manager.h"
+#include "neurottic.h"
 
 #define LUMP_CACHE 0
 
@@ -332,7 +331,10 @@ void *LM_LoadLump(const char *name, size_t *sz)
 	{
 		static char path[256];
 		SDL_snprintf(path, sizeof(path), "%s/%s", paths[i], name);
-		return SDL_LoadFile(path, sz);
+
+		void *data = NULL;
+		if ((data = SDL_LoadFile(path, sz)) != NULL)
+			return data;
 	}
 
 	/* search wads */
@@ -369,7 +371,10 @@ SDL_IOStream *LM_OpenLumpIO(const char *name)
 	{
 		static char path[256];
 		SDL_snprintf(path, sizeof(path), "%s/%s", paths[i], name);
-		return SDL_IOFromFile(path, "rb");
+
+		SDL_IOStream *io = NULL;
+		if ((io = SDL_IOFromFile(path, "rb")) != NULL)
+			return io;
 	}
 
 	/* search wads */

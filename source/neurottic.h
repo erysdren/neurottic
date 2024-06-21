@@ -22,59 +22,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "neurottic.h"
+#pragma once
+#ifndef _NEUROTTIC_H_
+#define _NEUROTTIC_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define SDL_MAIN_USE_CALLBACKS
-#include <SDL3/SDL_main.h>
+/* libc */
+#include <math.h>
 
-int SDL_AppInit(void **appstate, int argc, char **argv)
-{
-	/* initialize sdl */
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
-		return -1;
+/* SDL */
+#include <SDL3/SDL.h>
+#include <SDL3_net/SDL_net.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
-	/* initialize sdl_net */
-	if (SDLNet_Init() != 0)
-		return -1;
+/* audio manager */
+#include "audio_manager.h"
 
-	/* initialize lump manager */
-	if (LM_Init() != 0)
-		return -1;
+/* lump manager */
+#include "lump_manager.h"
 
-	/* initialize audio manager */
-	if (AU_Init() != 0)
-		return -1;
+/* math utilities */
+#include "math_utilities.h"
 
-	/* load game data */
-	LM_AddWAD("darkwar.wad");
-
-	/* set music volume */
-	AU_SetMusicVolume(0.5);
-	AU_PlayMusic("FASTWAY", SDL_FALSE);
-
-	return 0;
+#ifdef __cplusplus
 }
-
-void SDL_AppQuit(void *appstate)
-{
-	AU_StopMusic();
-	AU_Quit();
-
-	LM_Quit();
-
-	SDLNet_Quit();
-	SDL_Quit();
-}
-
-int SDL_AppIterate(void *appstate)
-{
-	return 0;
-}
-
-int SDL_AppEvent(void *appstate, const SDL_Event *event)
-{
-	if (event->type == SDL_EVENT_QUIT)
-		return 1;
-
-	return 0;
-}
+#endif
+#endif /* _NEUROTTIC_H_ */
