@@ -23,43 +23,23 @@ SOFTWARE.
 */
 
 #pragma once
-#ifndef _NEUROTTIC_H_
-#define _NEUROTTIC_H_
+#ifndef _RLEW_H_
+#define _RLEW_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* libc */
-#include <math.h>
-#include <stdlib.h>
-
-/* SDL */
 #include <SDL3/SDL.h>
-#include <SDL3_net/SDL_net.h>
-#include <SDL3_mixer/SDL_mixer.h>
 
-/* audio manager */
-#include "audio_manager.h"
+/* compress data from SRC and write into DEST */
+/* returns the number of bytes written to DEST */
+size_t rlew_compress(Uint16 *src, size_t src_len, Uint16 tag, Uint16 *dest, size_t dest_len);
 
-/* lump manager */
-#include "lump_manager.h"
-
-/* main */
-#include "main.h"
-
-/* mapset */
-#include "mapset.h"
-
-/* math utilities */
-#include "math_utilities.h"
-
-/* renderer */
-#include "renderer.h"
-
-/* rlew compression */
-#include "rlew.h"
+/* uncompress data from SRC and write into DEST */
+/* returns the number of bytes written to DEST */
+size_t rlew_uncompress(Uint16 *src, size_t src_len, Uint16 tag, Uint16 *dest, size_t dest_len);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* _NEUROTTIC_H_ */
+#endif /* _RLEW_H_ */

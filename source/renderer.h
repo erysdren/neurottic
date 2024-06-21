@@ -23,43 +23,22 @@ SOFTWARE.
 */
 
 #pragma once
-#ifndef _NEUROTTIC_H_
-#define _NEUROTTIC_H_
+#ifndef _RENDERER_H_
+#define _RENDERER_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* libc */
-#include <math.h>
-#include <stdlib.h>
+/* initialize renderer */
+int R_Init(void);
 
-/* SDL */
-#include <SDL3/SDL.h>
-#include <SDL3_net/SDL_net.h>
-#include <SDL3_mixer/SDL_mixer.h>
+/* shutdown renderer */
+void R_Quit(void);
 
-/* audio manager */
-#include "audio_manager.h"
-
-/* lump manager */
-#include "lump_manager.h"
-
-/* main */
-#include "main.h"
-
-/* mapset */
-#include "mapset.h"
-
-/* math utilities */
-#include "math_utilities.h"
-
-/* renderer */
-#include "renderer.h"
-
-/* rlew compression */
-#include "rlew.h"
+/* draw scene to specified window */
+int R_Draw(SDL_Window *window);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* _NEUROTTIC_H_ */
+#endif /* _RENDERER_H_ */

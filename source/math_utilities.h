@@ -35,11 +35,11 @@ extern "C" {
  * vec2
  */
 
-typedef struct vec2f {
+typedef struct Vec2f {
 	float x, y;
 } Vec2f;
 
-typedef struct vec2i {
+typedef struct Vec2i {
 	Sint32 x, y;
 } Vec2i;
 
@@ -47,11 +47,11 @@ typedef struct vec2i {
  * vec3
  */
 
-typedef struct vec3f {
+typedef struct Vec3f {
 	float x, y, z;
 } Vec3f;
 
-typedef struct vec3i {
+typedef struct Vec3i {
 	Sint32 x, y, z;
 } Vec3i;
 
@@ -59,11 +59,11 @@ typedef struct vec3i {
  * vec4
  */
 
-typedef struct vec4f {
+typedef struct Vec4f {
 	float x, y, z, w;
 } Vec4f;
 
-typedef struct vec4i {
+typedef struct Vec4i {
 	Sint32 x, y, z, w;
 } Vec4i;
 
@@ -71,22 +71,18 @@ typedef struct vec4i {
  * mat4
  */
 
-typedef struct mat4f {
-	union {
-		struct {
-			Vec4f x, y, z, w;
-		};
-		float m[4][4];
+typedef union Mat4f {
+	struct {
+		Vec4f x, y, z, w;
 	};
+	float m[4][4];
 } Mat4f;
 
-typedef struct mat4i {
-	union {
-		struct {
-			Vec4i x, y, z, w;
-		};
-		Sint32 m[4][4];
+typedef union Mat4i {
+	struct {
+		Vec4i x, y, z, w;
 	};
+	Sint32 m[4][4];
 } Mat4i;
 
 float rad2degf(float x);

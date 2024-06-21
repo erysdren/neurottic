@@ -23,43 +23,28 @@ SOFTWARE.
 */
 
 #pragma once
-#ifndef _NEUROTTIC_H_
-#define _NEUROTTIC_H_
+#ifndef _MAPSET_H_
+#define _MAPSET_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* libc */
-#include <math.h>
-#include <stdlib.h>
+/* load mapset by filename */
+int MS_LoadMapSet(const char *filename);
 
-/* SDL */
-#include <SDL3/SDL.h>
-#include <SDL3_net/SDL_net.h>
-#include <SDL3_mixer/SDL_mixer.h>
+/* unload current map and mapset */
+void MS_UnloadMapSet(void);
 
-/* audio manager */
-#include "audio_manager.h"
+/* load map from current mapset */
+int MS_LoadMap(int map);
 
-/* lump manager */
-#include "lump_manager.h"
+/* unload current map */
+void MS_UnloadMap(void);
 
-/* main */
-#include "main.h"
-
-/* mapset */
-#include "mapset.h"
-
-/* math utilities */
-#include "math_utilities.h"
-
-/* renderer */
-#include "renderer.h"
-
-/* rlew compression */
-#include "rlew.h"
+/* get pointer to decompressed plane from current map (valid range is 0-2) */
+Uint16 *MS_GetCurrentMapPlane(int plane);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* _NEUROTTIC_H_ */
+#endif /* _MAPSET_H_ */

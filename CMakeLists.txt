@@ -7,7 +7,10 @@ set(NEUROTTIC_SOURCES
 	${PROJECT_SOURCE_DIR}/source/audio_manager.c
 	${PROJECT_SOURCE_DIR}/source/lump_manager.c
 	${PROJECT_SOURCE_DIR}/source/main.c
+	${PROJECT_SOURCE_DIR}/source/mapset.c
 	${PROJECT_SOURCE_DIR}/source/math_utilities.c
+	${PROJECT_SOURCE_DIR}/source/renderer_rcl.c
+	${PROJECT_SOURCE_DIR}/source/rlew.c
 )
 
 add_executable(${NEUROTIC_EXEC} ${NEUROTTIC_SOURCES})

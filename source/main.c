@@ -33,9 +33,8 @@ SOFTWARE.
 
 void Quit(void)
 {
-	AU_StopMusic();
+	MS_UnloadMapSet();
 	AU_Quit();
-
 	LM_Quit();
 
 	SDLNet_Quit();
@@ -97,6 +96,8 @@ int SDL_AppInit(void **appstate, int argc, char **argv)
 
 	/* load game data */
 	LM_AddWAD("darkwar.wad");
+	MS_LoadMapSet("darkwar.rtl");
+	MS_LoadMap(0);
 
 	/* set music volume */
 	AU_SetMusicVolume(0.5);

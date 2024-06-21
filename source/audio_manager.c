@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include "neurottic.h"
 
-static Mix_Music *mix_music_chunk = NULL;
+static Mix_Music *current_chunk = NULL;
 
 static const SDL_AudioSpec mixer_spec = {
 	SDL_AUDIO_S16,
@@ -55,6 +55,7 @@ int AU_Init(void)
 
 void AU_Quit(void)
 {
+	AU_StopMusic();
 	Mix_Quit();
 }
 
@@ -88,8 +89,8 @@ int AU_PlayMusic(const char *name, SDL_bool loop)
 	AU_StopMusic();
 
 	/* play new music */
-	mix_music_chunk = chunk;
-	Mix_PlayMusic(mix_music_chunk, loop ? -1 : 0);
+	current_chunk = chunk;
+	Mix_PlayMusic(current_chunk, loop ? -1 : 0);
 
 	return 0;
 }
@@ -99,8 +100,8 @@ void AU_StopMusic(void)
 	if (Mix_PlayingMusic() || Mix_PausedMusic())
 		Mix_HaltMusic();
 
-	if (mix_music_chunk)
-		Mix_FreeMusic(mix_music_chunk);
+	if (current_chunk)
+		Mix_FreeMusic(current_chunk);
 
-	mix_music_chunk = NULL;
+	current_chunk = NULL;
 }

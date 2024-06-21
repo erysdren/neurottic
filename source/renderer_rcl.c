@@ -22,44 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-#ifndef _NEUROTTIC_H_
-#define _NEUROTTIC_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "neurottic.h"
 
-/* libc */
-#include <math.h>
-#include <stdlib.h>
+/*
+ * renderer implementation using raycastlib
+ */
 
-/* SDL */
-#include <SDL3/SDL.h>
-#include <SDL3_net/SDL_net.h>
-#include <SDL3_mixer/SDL_mixer.h>
+/* initialize renderer */
+int R_Init(void)
+{
 
-/* audio manager */
-#include "audio_manager.h"
-
-/* lump manager */
-#include "lump_manager.h"
-
-/* main */
-#include "main.h"
-
-/* mapset */
-#include "mapset.h"
-
-/* math utilities */
-#include "math_utilities.h"
-
-/* renderer */
-#include "renderer.h"
-
-/* rlew compression */
-#include "rlew.h"
-
-#ifdef __cplusplus
 }
-#endif
-#endif /* _NEUROTTIC_H_ */
+
+/* shutdown renderer */
+void R_Quit(void)
+{
+
+}
+
+/* draw scene to specified window */
+int R_Draw(SDL_Window *window)
+{
+
+}
