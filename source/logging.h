@@ -35,6 +35,12 @@ int Logging_Start(const char *filename, SDL_bool append);
 /* shutdown logging */
 void Logging_Quit(void);
 
+/* log standard message */
+#define Log(...) ({SDL_Log(__VA_ARGS__); 0;})
+
+/* log error message */
+#define LogError(...) ({SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__); SDL_SetError(__VA_ARGS__);})
+
 #ifdef __cplusplus
 }
 #endif

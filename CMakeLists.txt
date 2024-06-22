@@ -15,6 +15,7 @@ set(NEUROTTIC_SOURCES
 )
 
 add_executable(${NEUROTIC_EXEC} ${NEUROTTIC_SOURCES})
+set_property(TARGET ${NEUROTIC_EXEC} PROPERTY C_STANDARD 99)
 
 # target_compile_options(${NEUROTIC_EXEC} PUBLIC -fsanitize=address)
 # target_link_options(${NEUROTIC_EXEC} PUBLIC -fsanitize=address)
