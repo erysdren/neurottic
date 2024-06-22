@@ -33,10 +33,11 @@ SOFTWARE.
 
 void Quit(void)
 {
+	SDL_Log("Shutting down");
 	MS_UnloadMapSet();
 	AU_Quit();
 	LM_Quit();
-
+	Logging_Quit();
 	SDLNet_Quit();
 	SDL_Quit();
 }
@@ -49,6 +50,10 @@ int Start(void)
 
 	/* sdl_net */
 	if (SDLNet_Init() != 0)
+		return -1;
+
+	/* start logging */
+	if (Logging_Start("neurottic.log", SDL_FALSE) != 0)
 		return -1;
 
 	/* lump manager */
@@ -70,7 +75,7 @@ int Restart(void)
 
 void Die(const char *fmt, ...)
 {
-	static char error[1024];
+	static char error[2048];
 	va_list ap;
 
 	va_start(ap, fmt);
@@ -81,6 +86,7 @@ void Die(const char *fmt, ...)
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical Error", error, NULL);
 
 	Quit();
+
 	exit(1);
 }
 
@@ -94,14 +100,28 @@ int SDL_AppInit(void **appstate, int argc, char **argv)
 	if (Start() != 0)
 		Die(SDL_GetError());
 
-	/* load game data */
-	LM_AddWAD("darkwar.wad");
-	MS_LoadMapSet("darkwar.rtl");
-	MS_LoadMap(0);
+	/* load game wad */
+	if (LM_AddWAD("darkwar.wad") != 0)
+		Die(SDL_GetError());
+
+	/* add lumps searchpath */
+	if (LM_AddPath("lumps") != 0)
+		Die(SDL_GetError());
+
+	/* load mapset */
+	if (MS_LoadMapSet("darkwar.rtl") != 0)
+		Die(SDL_GetError());
+
+	/* load first map */
+	if (MS_LoadMap(0) != 0)
+		Die(SDL_GetError());
 
 	/* set music volume */
 	AU_SetMusicVolume(0.5);
-	AU_PlayMusic("FASTWAY", SDL_FALSE);
+
+	/* play music */
+	if (AU_PlayMusic("FASTWAY", SDL_FALSE) != 0)
+		Die(SDL_GetError());
 
 	return 0;
 }

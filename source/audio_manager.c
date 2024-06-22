@@ -73,7 +73,7 @@ int AU_PlayMusic(const char *name, SDL_bool loop)
 
 	/* stoopid */
 	if (!name)
-		return -1;
+		return SDL_SetError("AU_PlayMusic(): NULL pointer passed as music name");
 
 	/* open lump io */
 	io = LM_OpenLumpIO(name);
@@ -90,9 +90,7 @@ int AU_PlayMusic(const char *name, SDL_bool loop)
 
 	/* play new music */
 	current_chunk = chunk;
-	Mix_PlayMusic(current_chunk, loop ? -1 : 0);
-
-	return 0;
+	return Mix_PlayMusic(current_chunk, loop ? -1 : 0);
 }
 
 void AU_StopMusic(void)

@@ -98,12 +98,12 @@ int MS_LoadMapSet(const char *filename)
 
 	/* stoopid */
 	if (!filename)
-		return -1;
+		return SDL_SetError("MS_LoadMapSet(): NULL pointer passed as filename");
 
 	/* open file */
 	io = SDL_IOFromFile(filename, "rb");
 	if (!io)
-		return -1;
+		return SDL_SetError("MS_LoadMapSet(): Couldn't open \"%s\" for reading", filename);
 
 	/* test magic */
 	SDL_ReadIO(io, magic, 4);
@@ -130,7 +130,7 @@ int MS_LoadMapSet(const char *filename)
 	else
 	{
 		SDL_CloseIO(io);
-		return -1;
+		return SDL_SetError("MS_LoadMapSet(): Invalid magic %.*s", 4, magic);
 	}
 
 	/* test version */
@@ -142,7 +142,7 @@ int MS_LoadMapSet(const char *filename)
 	else if (version != rtl_version)
 	{
 		SDL_CloseIO(io);
-		return -1;
+		return SDL_SetError("MS_LoadMapSet(): Invalid version 0x%08x", version);
 	}
 
 	/* unload whatever is there */
@@ -171,7 +171,7 @@ int MS_LoadMapSet(const char *filename)
 	mapset_version = version;
 	mapset_filename = SDL_strdup(filename);
 
-	SDL_Log("Successfully loaded \"%s\"", mapset_filename);
+	SDL_Log("MS_LoadMapSet(): Successfully loaded \"%s\"", mapset_filename);
 
 	return 0;
 }
@@ -196,11 +196,11 @@ int MS_LoadMap(int map)
 {
 	/* out of range */
 	if (map < 0 || map >= 100)
-		return -1;
+		return SDL_SetError("MS_LoadMap(): Map %d is out of range", map);
 
 	/* not used in this mapset */
 	if (!maps[map].used)
-		return -1;
+		return SDL_SetError("MS_LoadMap(): Map %d is not used in this mapset", map);
 
 	map_index = map;
 
@@ -238,6 +238,9 @@ void MS_UnloadMap(void)
 Uint16 *MS_GetCurrentMapPlane(int plane)
 {
 	if (plane < 0 || plane >= 3)
+	{
+		SDL_SetError("MS_GetCurrentMapPlane(): Plane %d is out of range", plane);
 		return NULL;
+	}
 	return map_planes[plane];
 }

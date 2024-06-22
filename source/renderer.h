@@ -35,8 +35,17 @@ int R_Init(void);
 /* shutdown renderer */
 void R_Quit(void);
 
-/* draw scene to specified window */
-int R_Draw(SDL_Window *window);
+/* draw scene */
+int R_Draw(void);
+
+/* set palette colors */
+void R_SetPalette(Uint8 *palette);
+
+/* set render position */
+void R_SetPosition(float x, float y, float z);
+
+/* set render angles */
+void R_SetAngles(float x, float y, float z);
 
 #ifdef __cplusplus
 }

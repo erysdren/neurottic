@@ -139,7 +139,7 @@ static int LM_CacheLumpsFromWAD(int w)
 int LM_Init(void)
 {
 	if (started)
-		return -1;
+		return SDL_SetError("LM_Init(): Lump manager already started");
 
 	started = SDL_TRUE;
 
@@ -296,21 +296,15 @@ int LM_AddPath(const char *path)
 
 	/* stoopid */
 	if (!path)
-		return -1;
+		return SDL_SetError("LM_AddPath(): NULL pointer passed as path name");
 
 	/* check if path exists */
 	if (SDL_GetPathInfo(path, &info) != 0)
-	{
-		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, SDL_GetError());
 		return -1;
-	}
 
 	/* check if its a directory */
 	if (info.type != SDL_PATHTYPE_DIRECTORY)
-	{
-		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "\"%s\" is not a directory", path);
-		return -1;
-	}
+		return SDL_SetError("LM_AddPath(): \"%s\" is not a directory", path);
 
 	/* add to paths list */
 	num_paths++;
@@ -357,6 +351,7 @@ void *LM_LoadLump(const char *name, size_t *sz)
 		}
 	}
 
+	SDL_SetError("LM_LoadLump(): Lump \"%s\" was not found", name);
 	return NULL;
 }
 
@@ -396,6 +391,7 @@ SDL_IOStream *LM_OpenLumpIO(const char *name)
 		}
 	}
 
+	SDL_SetError("LM_OpenLumpIO(): Lump \"%s\" was not found", name);
 	return NULL;
 }
 
@@ -428,9 +424,9 @@ Sint32 LM_GetLumpIndex(const char *name)
 		if ((io = SDL_IOFromFile(path, "rb")) != NULL)
 		{
 			SDL_CloseIO(io);
-			return -2;
+			return SDL_SetError("LM_GetLumpIndex(): Lump \"%s\" has no valid index because it only exists on disk", name);
 		}
 	}
 
-	return -1;
+	return SDL_SetError("LM_GetLumpIndex(): Lump \"%s\" was not found", name);
 }

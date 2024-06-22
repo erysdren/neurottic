@@ -23,46 +23,19 @@ SOFTWARE.
 */
 
 #pragma once
-#ifndef _NEUROTTIC_H_
-#define _NEUROTTIC_H_
+#ifndef _LOGGING_H_
+#define _LOGGING_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* libc */
-#include <math.h>
-#include <stdlib.h>
+/* start logging to specified filename, or NULL */
+int Logging_Start(const char *filename, SDL_bool append);
 
-/* SDL */
-#include <SDL3/SDL.h>
-#include <SDL3_net/SDL_net.h>
-#include <SDL3_mixer/SDL_mixer.h>
-
-/* audio manager */
-#include "audio_manager.h"
-
-/* logging */
-#include "logging.h"
-
-/* lump manager */
-#include "lump_manager.h"
-
-/* main */
-#include "main.h"
-
-/* mapset */
-#include "mapset.h"
-
-/* math utilities */
-#include "math_utilities.h"
-
-/* renderer */
-#include "renderer.h"
-
-/* rlew compression */
-#include "rlew.h"
+/* shutdown logging */
+void Logging_Quit(void);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* _NEUROTTIC_H_ */
+#endif /* _LOGGING_H_ */
