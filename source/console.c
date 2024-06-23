@@ -26,12 +26,29 @@ SOFTWARE.
 
 #include <ctype.h>
 
+/*
+ *
+ * types & defines
+ *
+ */
+
 #define CON_FONTWIDTH (8)
 #define CON_FONTHEIGHT (8)
 #define CON_NUMLINES (RENDER_HEIGHT / CON_FONTHEIGHT)
 #define CON_LINESIZE (80)
 #define CON_BUFSIZE (4096)
 #define CON_PREFIXSIZE (2)
+
+typedef struct cmd {
+	const char *name;
+	int (*func)(int argc, char **argv);
+} cmd_t;
+
+/*
+ *
+ * globals
+ *
+ */
 
 static SDL_bool started = SDL_FALSE;
 static char textbuf[CON_BUFSIZE] = {};
@@ -41,6 +58,84 @@ static int num_lines = 0;
 static char input[CON_LINESIZE] = {};
 static int input_len = 0;
 static int input_cursor = 0;
+
+/*
+ *
+ * commands
+ *
+ */
+
+static int CMD_Quit(int argc, char **argv)
+{
+	Quit();
+	exit(0);
+	return 0;
+}
+
+static cmd_t commands[] = {
+	{"quit", CMD_Quit},
+	{"exit", CMD_Quit}
+};
+
+/*
+ *
+ * private
+ *
+ */
+
+static char **tokenize(const char *s, int *num_args)
+{
+	static char *argv[32];
+	int argc = 0;
+	char *ptr, *end;
+
+	ptr = (char *)s;
+	for(;;)
+	{
+		while(*ptr && isspace(*ptr))
+			ptr++;
+
+		if(!*ptr)
+			break;
+
+		end = ptr + 1;
+
+		while(*end && !isspace(*end))
+			end++;
+
+		if (argc < 32 - 1)
+			argv[argc++] = ptr;
+
+		if (!*end)
+			break;
+
+		*end = 0;
+		ptr = end + 1;
+	}
+
+	argv[argc] = 0;
+	*num_args = argc;
+	return argv;
+}
+
+static void push_line(char *ptr)
+{
+	/* add line */
+	lines[num_lines++] = ptr;
+
+	/* do memmove if we've hit the screen edge */
+	if (num_lines >= CON_NUMLINES - 1)
+	{
+		SDL_memmove(&lines[0], &lines[1], (CON_NUMLINES - 1) * sizeof(char *));
+		num_lines = CON_NUMLINES - 2;
+	}
+}
+
+/*
+ *
+ * public
+ *
+ */
 
 int Console_Init(void)
 {
@@ -68,19 +163,6 @@ void Console_Quit(void)
 	SDL_memset(input, 0, sizeof(input));
 	input_len = 0;
 	input_cursor = 0;
-}
-
-static void push_line(char *ptr)
-{
-	/* add line */
-	lines[num_lines++] = ptr;
-
-	/* do memmove if we've hit the screen edge */
-	if (num_lines >= CON_NUMLINES - 1)
-	{
-		SDL_memmove(&lines[0], &lines[1], (CON_NUMLINES - 1) * sizeof(char *));
-		num_lines = CON_NUMLINES - 2;
-	}
 }
 
 void Console_Print(const char *s)
@@ -132,6 +214,23 @@ void Console_Printf(const char *fmt, ...)
 	Console_Print(line);
 }
 
+void Console_Evaluate(const char *s)
+{
+	int argc;
+	char **argv = tokenize(s, &argc);
+
+	if (!argv || !argc)
+		return;
+
+	for (int i = 0; i < ASIZE(commands); i++)
+	{
+		if (SDL_strcasecmp(argv[0], commands[i].name) == 0)
+			commands[i].func(argc, argv);
+	}
+
+	Log("Unknown command or cvar entered");
+}
+
 void Console_HandleInput(int c)
 {
 	if (!started)
@@ -143,7 +242,8 @@ void Console_HandleInput(int c)
 		case '\n':
 		case '\r':
 			input[input_len] = '\0';
-			Console_Print(input);
+			Log(input);
+			Console_Evaluate(&input[1]);
 			Console_ClearInput();
 			break;
 

@@ -38,6 +38,9 @@ extern "C" {
 #include <SDL3_net/SDL_net.h>
 #include <SDL3_mixer/SDL_mixer.h>
 
+/* misc */
+#define ASIZE(a) (sizeof(a) / sizeof(a[0]))
+
 /* audio manager */
 #include "audio_manager.h"
 

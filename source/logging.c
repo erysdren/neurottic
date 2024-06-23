@@ -35,7 +35,7 @@ static void log_func(void *userdata, int category, SDL_LogPriority priority, con
 	static const char *priorities[SDL_NUM_LOG_PRIORITIES] = {
 		[SDL_LOG_PRIORITY_VERBOSE] = "VERBOSE: ",
 		[SDL_LOG_PRIORITY_DEBUG] = "DEBUG: ",
-		[SDL_LOG_PRIORITY_INFO] = "INFO: ",
+		[SDL_LOG_PRIORITY_INFO] = "",
 		[SDL_LOG_PRIORITY_WARN] = "WARNING: ",
 		[SDL_LOG_PRIORITY_ERROR] = "ERROR: ",
 		[SDL_LOG_PRIORITY_CRITICAL] = "CRITICAL: "
