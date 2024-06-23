@@ -128,7 +128,10 @@ int SDL_AppInit(void **appstate, int argc, char **argv)
 
 	/* play music */
 	AU_SetMusicVolume(0.5);
-	AU_PlayMusic("FASTWAY", SDL_TRUE);
+	if (AU_PlayMusic("FASTWAY", SDL_TRUE) != 0)
+		Die(SDL_GetError());
+
+	Log("Playing FASTWAY");
 
 	/* set palette */
 	Uint8 *palette = (Uint8 *)LM_LoadLump("PAL", NULL);
@@ -156,6 +159,10 @@ int SDL_AppEvent(void *appstate, const SDL_Event *event)
 {
 	if (event->type == SDL_EVENT_QUIT)
 		return 1;
+
+	/* handle console inputs */
+	if (event->type == SDL_EVENT_KEY_DOWN)
+		Console_HandleInput(event->key.keysym.sym);
 
 	return 0;
 }

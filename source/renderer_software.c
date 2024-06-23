@@ -55,7 +55,7 @@ int R_Init(void)
 	if (!planes[0] || !planes[1] || !planes[2])
 		return LogError("R_Init(): No map loaded");
 
-	window = SDL_CreateWindow("NEUROTTIC", WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+	window = SDL_CreateWindow("NEUROTTIC", WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
 	if (!window)
 		return -1;
 
@@ -65,7 +65,7 @@ int R_Init(void)
 	if (!renderer)
 		return -1;
 
-	SDL_SetRenderLogicalPresentation(renderer, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_LOGICAL_PRESENTATION_STRETCH, SDL_SCALEMODE_NEAREST);
+	SDL_SetRenderLogicalPresentation(renderer, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX, SDL_SCALEMODE_NEAREST);
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
@@ -123,17 +123,26 @@ void R_Draw(void)
 void R_DrawConsole(void)
 {
 	int num_lines;
+	char *input = Console_GetInputLine();
 	char **lines = Console_GetLines(&num_lines);
 	int y = 0;
 
+	/* draw lines */
 	for (int i = 0; i < num_lines; i++)
 	{
 		if (lines[i])
 		{
 			R_DrawString(0, y, 0xFF, lines[i]);
 			y += 8;
+
+			/* leave room for input line */
+			if (y >= RENDER_HEIGHT - 8)
+				break;
 		}
 	}
+
+	/* draw input line */
+	R_DrawString(0, RENDER_HEIGHT - 8, 0xFF, input);
 }
 
 /* flip to visible screen */

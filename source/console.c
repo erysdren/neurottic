@@ -26,8 +26,8 @@ SOFTWARE.
 
 #include <ctype.h>
 
-#define CON_NUMLINES (64)
-#define CON_LINESIZE (64)
+#define CON_NUMLINES (50)
+#define CON_LINESIZE (80)
 #define CON_BUFSIZE (4096)
 #define CON_PREFIXSIZE (2)
 
@@ -70,34 +70,14 @@ void Console_Quit(void)
 
 static void push_line(char *ptr)
 {
+	/* add line */
 	lines[num_lines++] = ptr;
 
-	/* copy second half to first half if we're about to overflow */
+	/* do memmove if we've hit the screen edge */
 	if (num_lines >= CON_NUMLINES - 1)
 	{
-		void *first;
-		void *second;
-		int len;
-
-		/* pointer to first half */
-		first = lines;
-
-		/* pointer to second half */
-		second = &lines[(CON_NUMLINES / 2) - 1];
-
-		/* copy and set size */
-		len = sizeof(char *) * (CON_NUMLINES / 2);
-
-		/* copy second half to first half */
-		memcpy(first, second, len);
-
-		/* zero out second half (minus one for input line) */
-		second = &lines[CON_NUMLINES / 2];
-		len = sizeof(char *) * ((CON_NUMLINES / 2) - 1);
-		SDL_memset(second, 0, len);
-
-		/* set num_lines */
-		num_lines = CON_NUMLINES / 2;
+		SDL_memmove(&lines[0], &lines[1], (CON_NUMLINES - 1) * sizeof(char *));
+		num_lines = CON_NUMLINES - 2;
 	}
 }
 
@@ -105,6 +85,9 @@ void Console_Print(const char *s)
 {
 	int i;
 	int len_src = SDL_strlen(s);
+
+	if (!started)
+		return;
 
 	/* bounds checks */
 	if (textbuf_ptr + len_src + 1 > textbuf + CON_BUFSIZE)
@@ -135,6 +118,9 @@ void Console_Printf(const char *fmt, ...)
 	static char line[CON_LINESIZE];
 	va_list args;
 
+	if (!started)
+		return;
+
 	/* do vargs */
 	va_start(args, fmt);
 	SDL_vsnprintf(line, sizeof(line), fmt, args);
@@ -146,6 +132,9 @@ void Console_Printf(const char *fmt, ...)
 
 void Console_HandleInput(int c)
 {
+	if (!started)
+		return;
+
 	switch (c)
 	{
 		/* newlines */
@@ -212,4 +201,9 @@ char **Console_GetLines(int *n)
 {
 	if (n) *n = num_lines;
 	return lines;
+}
+
+char *Console_GetInputLine(void)
+{
+	return input;
 }

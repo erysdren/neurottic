@@ -45,6 +45,8 @@ void Console_ClearInput(void);
 
 char **Console_GetLines(int *n);
 
+char *Console_GetInputLine(void);
+
 #ifdef __cplusplus
 }
 #endif
