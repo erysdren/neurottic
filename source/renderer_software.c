@@ -43,22 +43,17 @@ int R_Init(void)
 {
 	Uint32 format;
 
-	planes[0] = MS_GetCurrentMapPlane(0);
-	planes[1] = MS_GetCurrentMapPlane(1);
-	planes[2] = MS_GetCurrentMapPlane(2);
-
-	if (!planes[0] || !planes[1] || !planes[2])
-		return LogError("R_Init(): No map loaded");
-
 	window = SDL_CreateWindow("NEUROTTIC", RENDER_WIDTH, RENDER_HEIGHT, SDL_WINDOW_RESIZABLE);
 	if (!window)
 		return -1;
+
+	SDL_SetWindowMinimumSize(window, RENDER_WIDTH, RENDER_HEIGHT);
 
 	renderer = SDL_CreateRenderer(window, NULL);
 	if (!renderer)
 		return -1;
 
-	SDL_SetRenderVSync(renderer, 2);
+	SDL_SetRenderVSync(renderer, 1);
 	SDL_SetRenderLogicalPresentation(renderer, RENDER_WIDTH, RENDER_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX, SDL_SCALEMODE_NEAREST);
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -108,9 +103,16 @@ void R_Clear(Uint8 color)
 }
 
 /* draw scene */
-void R_Draw(void)
+int R_Draw(void)
 {
+	planes[0] = MS_GetCurrentMapPlane(0);
+	planes[1] = MS_GetCurrentMapPlane(1);
+	planes[2] = MS_GetCurrentMapPlane(2);
 
+	if (!planes[0] || !planes[1] || !planes[2])
+		return LogError("R_Init(): No map loaded");
+
+	return 0;
 }
 
 /* draw filled rect */

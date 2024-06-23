@@ -107,6 +107,22 @@ void Die(const char *fmt, ...)
 }
 
 /*
+ * time management
+ */
+
+static Uint64 next_time = 0;
+
+static Uint64 time_left(void)
+{
+	Uint64 now = SDL_GetTicks();
+
+	if (next_time <= now)
+		return 0;
+	else
+		return next_time - now;
+}
+
+/*
  * sdl_main callbacks
  */
 
@@ -148,6 +164,9 @@ int SDL_AppInit(void **appstate, int argc, char **argv)
 	R_SetPalette(palette);
 	SDL_free(palette);
 
+	/* start counting time */
+	next_time = SDL_GetTicks() + RENDER_HZ;
+
 	return 0;
 }
 
@@ -172,6 +191,10 @@ int SDL_AppIterate(void *appstate)
 	}
 
 	R_Flip();
+
+	/* wait */
+	SDL_Delay(time_left());
+	next_time += RENDER_HZ;
 	return 0;
 }
 
