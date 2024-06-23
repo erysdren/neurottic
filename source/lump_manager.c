@@ -136,7 +136,10 @@ int LM_AddWAD(const char *filename)
 
 	/* stoopid */
 	if (!filename)
+	{
+		ret = LogError("LM_AddWAD(): NULL pointer passed as filename");
 		goto fail;
+	}
 
 	/* load file */
 	data = SDL_LoadFile(filename, &size);
@@ -151,12 +154,18 @@ int LM_AddWAD(const char *filename)
 	/* allocate wad */
 	wad = SDL_calloc(1, sizeof(wad_t));
 	if (!wad)
+	{
+		ret = LogError("LM_AddWAD(): Memory allocation of %zu bytes failed", sizeof(wad_t));
 		goto fail;
+	}
 
 	/* check magic */
 	SDL_ReadIO(io, wad->magic, 4);
 	if (SDL_memcmp(wad->magic, iwad_magic, 4) != 0 && SDL_memcmp(wad->magic, pwad_magic, 4) != 0)
+	{
+		ret = LogError("LM_AddWAD(): WAD magic \"%.*s\" does not match expected", 4, wad->magic);
 		goto fail;
+	}
 
 	/* read data */
 	SDL_ReadS32LE(io, &wad->num_lumps);
@@ -165,7 +174,10 @@ int LM_AddWAD(const char *filename)
 	/* allocate lumps */
 	wad->lumps = SDL_calloc(wad->num_lumps, sizeof(struct wad_lump));
 	if (!wad->lumps)
+	{
+		ret = LogError("LM_AddWAD(): Memory allocation of %zu bytes failed", wad->num_lumps * sizeof(struct wad_lump));
 		goto fail;
+	}
 
 	/* read lumps */
 	SDL_SeekIO(io, wad->ofs_lumps, SDL_IO_SEEK_SET);
