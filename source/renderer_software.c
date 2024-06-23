@@ -121,6 +121,13 @@ void R_DrawRect(int x, int y, int w, int h, Uint8 color)
 		SDL_memset(&((Uint8 *)surface8->pixels)[yy * surface8->pitch + x], color, w);
 }
 
+/* draw surface */
+int R_DrawSurface(int x, int y, int w, int h, SDL_Surface *surface)
+{
+	const SDL_Rect rect = {x, y, w, h};
+	return SDL_SoftStretch(surface, NULL, surface8, &rect, SDL_SCALEMODE_NEAREST);
+}
+
 /* draw console */
 void R_DrawConsole(void)
 {

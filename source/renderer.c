@@ -22,56 +22,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-#ifndef _RENDERER_H_
-#define _RENDERER_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "neurottic.h"
 
-#define RENDER_WIDTH (640)
-#define RENDER_HEIGHT (480)
-
-/* initialize renderer */
-int R_Init(void);
-
-/* shutdown renderer */
-void R_Quit(void);
-
-/* clear screen */
-void R_Clear(Uint8 color);
-
-/* draw scene */
-void R_Draw(void);
-
-/* draw filled rect */
-void R_DrawRect(int x, int y, int w, int h, Uint8 color);
-
-/* draw surface */
-int R_DrawSurface(int x, int y, int w, int h, SDL_Surface *surface);
-
-/* draw console */
-void R_DrawConsole(void);
-
-/* flip to visible screen */
-void R_Flip(void);
-
-/* set palette colors */
-void R_SetPalette(Uint8 *palette);
-
-/* set render position */
-void R_SetPosition(float x, float y, float z);
-
-/* set render angles */
-void R_SetAngles(float x, float y, float z);
-
-/* draw string at x,y with color */
-void R_DrawString(int x, int y, Uint8 color, const char *fmt, ...);
+#define NUM_PLANES (4)
 
 /* create SDL_Surface from planar pic */
-SDL_Surface *R_SurfaceFromPic(int w, int h, Uint8 *pixels);
+SDL_Surface *R_SurfaceFromPic(int w, int h, Uint8 *pixels)
+{
+	if (!w || !h || !pixels)
+		return NULL;
 
-#ifdef __cplusplus
+	SDL_Surface *surface = SDL_CreateSurface(w * NUM_PLANES, h, SDL_PIXELFORMAT_INDEX8);
+	if (!surface)
+		return NULL;
+
+	/* copy plane by plane, pixel by pixel */
+	for (int plane = 0; plane < NUM_PLANES; plane++)
+	{
+		for (int y = 0; y < h; y++)
+		{
+			for (int x = 0; x < w; x++)
+			{
+				Uint8 *dst = &((Uint8 *)surface->pixels)[y * surface->pitch];
+				dst[x * NUM_PLANES + plane] = pixels[y * w + x];
+			}
+		}
+	}
+
+	SDL_SetSurfaceColorKey(surface, SDL_TRUE, 0xFF);
+
+	return surface;
 }
-#endif
-#endif /* _RENDERER_H_ */
