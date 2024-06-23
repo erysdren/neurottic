@@ -59,18 +59,18 @@ int Logging_Start(const char *filename, SDL_bool append)
 	{
 		if (log_file)
 		{
-			SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Logging_Start(): Closing existing log file");
+			LogWarning("Logging_Start(): Closing existing log file");
 			SDL_CloseIO(log_file);
 		}
 
 		log_file = SDL_IOFromFile(filename, append ? "ab" : "wb");
 		if (!log_file)
-			SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Logging_Start(): Unable to open log file \"%s\" for writing", filename);
+			LogWarning("Logging_Start(): Unable to open log file \"%s\" for writing", filename);
 	}
 
 	SDL_SetLogOutputFunction(log_func, (void *)log_file);
 	if (log_file)
-		SDL_Log("Logging_Start(): Started logging to \"%s\"", filename);
+		Log("Started logging to \"%s\"", filename);
 
 	return 0;
 }

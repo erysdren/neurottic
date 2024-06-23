@@ -38,8 +38,17 @@ void Logging_Quit(void);
 /* log standard message */
 #define Log(...) ({SDL_Log(__VA_ARGS__); 0;})
 
+/* log verbose message */
+#define LogVerbose(...) (SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__), 0)
+
+/* log warning message */
+#define LogWarning(...) (SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__), 0)
+
+/* log critical message */
+#define LogCritical(...) (SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__), 0)
+
 /* log error message */
-#define LogError(...) ({SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__); SDL_SetError(__VA_ARGS__);})
+#define LogError(...) (SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__), SDL_SetError(__VA_ARGS__))
 
 #ifdef __cplusplus
 }

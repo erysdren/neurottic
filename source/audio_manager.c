@@ -42,15 +42,15 @@ int AU_Init(void)
 	const char *soundfonts = Mix_GetSoundFonts();
 	if (soundfonts)
 	{
+		Log("Using soundfonts string \"%s\"", soundfonts);
 		Mix_SetSoundFonts(soundfonts);
-		SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "Using soundfont string: \"%s\"", soundfonts);
 	}
 	else
 	{
-		SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Failed to setup soundfonts");
+		LogWarning("AU_Init(): Failed to setup soundfonts");
 	}
 
-	return 0;
+	return Log("Initialized audio manager");
 }
 
 void AU_Quit(void)

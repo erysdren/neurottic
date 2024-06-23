@@ -24,8 +24,6 @@ SOFTWARE.
 
 #include "neurottic.h"
 
-#define LUMP_CACHE 0
-
 /*
  *
  * types
@@ -48,22 +46,6 @@ typedef struct wad {
 	void *data;
 } wad_t;
 
-#if LUMP_CACHE
-/* cached lump */
-typedef struct cached_lump {
-	char name[8];
-	Sint32 size;
-	struct {
-		Sint32 which;
-		Sint32 index;
-	} wad;
-	struct {
-		Sint32 which;
-		char *path;
-	} path;
-} cached_lump_t;
-#endif
-
 /*
  *
  * globals
@@ -81,54 +63,6 @@ static wad_t **wads = NULL;
 static int num_paths = 0;
 static char **paths = NULL;
 
-#if LUMP_CACHE
-/* cached lump indexes */
-static int num_cached_lumps = 0;
-static cached_lump_t *cached_lumps = NULL;
-#endif
-
-/*
- *
- * private functions
- *
- */
-
-#if LUMP_CACHE
-static int LM_CacheLumpsFromWAD(int w)
-{
-	if (w < 0 || w >= num_wads)
-		return -1;
-
-	SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "LM: Caching %d lumps from \"%s\"", wads[w]->num_lumps, wads[w]->filename);
-
-	/* increase cache size */
-	cached_lumps = SDL_realloc(cached_lumps, num_cached_lumps + wads[w]->num_lumps * sizeof(cached_lump_t));
-
-	/* do caching */
-	for (int i = num_cached_lumps; i < num_cached_lumps + wads[w]->num_lumps; i++)
-	{
-		/* setup generic fields */
-		SDL_strlcpy(cached_lumps[i].name, wads[w]->lumps[i - num_cached_lumps].name, 8);
-		cached_lumps[i].size = wads[w]->lumps[i - num_cached_lumps].len;
-
-		/* setup wad fields */
-		cached_lumps[i].wad.which = w;
-		cached_lumps[i].wad.index = i - num_cached_lumps;
-
-		/* setup path fields */
-		cached_lumps[i].path.which = -1;
-		cached_lumps[i].path.path = NULL;
-	}
-
-	/* increase total cached lumps */
-	num_cached_lumps += wads[w]->num_lumps;
-
-	SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, "LM: WAD cache size: %d", num_cached_lumps);
-
-	return wads[w]->num_lumps;
-}
-#endif
-
 /*
  *
  * public functions
@@ -139,7 +73,7 @@ static int LM_CacheLumpsFromWAD(int w)
 int LM_Init(void)
 {
 	if (started)
-		return SDL_SetError("LM_Init(): Lump manager already started");
+		return LogError("LM_Init(): Lump manager already started");
 
 	started = SDL_TRUE;
 
@@ -182,29 +116,11 @@ void LM_Quit(void)
 		SDL_free(paths);
 	}
 
-#if LUMP_CACHE
-	if (cached_lumps)
-	{
-		for (int i = 0; i < num_cached_lumps; i++)
-		{
-			if (cached_lumps[i].path.path)
-				SDL_free(cached_lumps[i].path.path);
-		}
-
-		SDL_free(cached_lumps);
-	}
-#endif
-
 	num_wads = 0;
 	wads = NULL;
 
 	num_paths = 0;
 	paths = NULL;
-
-#if LUMP_CACHE
-	num_cached_lumps = 0;
-	cached_lumps = NULL;
-#endif
 
 	started = SDL_FALSE;
 }
@@ -259,19 +175,13 @@ int LM_AddWAD(const char *filename)
 	wad->filename = SDL_strdup(filename);
 	wad->data = data;
 
-#if LUMP_CACHE
-	/* cache wads */
-	if (!LM_CacheLumpsFromWAD(wad))
-		goto fail;
-#endif
-
 	/* add to wads list */
 	num_wads++;
 	wads = SDL_realloc(wads, sizeof(wad_t *) * num_wads);
 	wads[num_wads - 1] = wad;
 
 	/* done */
-	ret = 0;
+	ret = Log("Successfully added WAD \"%s\"", filename);
 	goto done;
 
 fail:
@@ -296,7 +206,7 @@ int LM_AddPath(const char *path)
 
 	/* stoopid */
 	if (!path)
-		return SDL_SetError("LM_AddPath(): NULL pointer passed as path name");
+		return LogError("LM_AddPath(): NULL pointer passed as path name");
 
 	/* check if path exists */
 	if (SDL_GetPathInfo(path, &info) != 0)
@@ -304,14 +214,14 @@ int LM_AddPath(const char *path)
 
 	/* check if its a directory */
 	if (info.type != SDL_PATHTYPE_DIRECTORY)
-		return SDL_SetError("LM_AddPath(): \"%s\" is not a directory", path);
+		return LogError("LM_AddPath(): \"%s\" is not a directory", path);
 
 	/* add to paths list */
 	num_paths++;
 	paths = SDL_realloc(paths, sizeof(char *) * num_paths);
 	paths[num_paths - 1] = SDL_strdup(path);
 
-	return 0;
+	return Log("Successfully added path \"%s\"", path);
 }
 
 /* load entire lump into buffer. this data should be freed with SDL_free */
@@ -351,7 +261,7 @@ void *LM_LoadLump(const char *name, size_t *sz)
 		}
 	}
 
-	SDL_SetError("LM_LoadLump(): Lump \"%s\" was not found", name);
+	LogError("LM_LoadLump(): Lump \"%s\" was not found", name);
 	return NULL;
 }
 
@@ -391,7 +301,7 @@ SDL_IOStream *LM_OpenLumpIO(const char *name)
 		}
 	}
 
-	SDL_SetError("LM_OpenLumpIO(): Lump \"%s\" was not found", name);
+	LogError("LM_OpenLumpIO(): Lump \"%s\" was not found", name);
 	return NULL;
 }
 
@@ -424,9 +334,9 @@ Sint32 LM_GetLumpIndex(const char *name)
 		if ((io = SDL_IOFromFile(path, "rb")) != NULL)
 		{
 			SDL_CloseIO(io);
-			return SDL_SetError("LM_GetLumpIndex(): Lump \"%s\" has no valid index because it only exists on disk", name);
+			return LogError("LM_GetLumpIndex(): Lump \"%s\" has no valid index because it only exists on disk", name);
 		}
 	}
 
-	return SDL_SetError("LM_GetLumpIndex(): Lump \"%s\" was not found", name);
+	return LogError("LM_GetLumpIndex(): Lump \"%s\" was not found", name);
 }

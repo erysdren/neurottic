@@ -33,7 +33,7 @@ SOFTWARE.
 
 void Quit(void)
 {
-	SDL_Log("Shutting down");
+	Log("Shutting down");
 	MS_UnloadMapSet();
 	AU_Quit();
 	LM_Quit();
@@ -82,7 +82,7 @@ void Die(const char *fmt, ...)
 	SDL_vsnprintf(error, sizeof(error), fmt, ap);
 	va_end(ap);
 
-	SDL_LogCritical(SDL_LOG_CATEGORY_APPLICATION, error);
+	LogCritical(error);
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Critical Error", error, NULL);
 
 	Quit();
@@ -116,12 +116,14 @@ int SDL_AppInit(void **appstate, int argc, char **argv)
 	if (MS_LoadMap(0) != 0)
 		Die(SDL_GetError());
 
+#if 0
 	/* set music volume */
 	AU_SetMusicVolume(0.5);
 
 	/* play music */
 	if (AU_PlayMusic("FASTWAY", SDL_FALSE) != 0)
 		Die(SDL_GetError());
+#endif
 
 	return 0;
 }
