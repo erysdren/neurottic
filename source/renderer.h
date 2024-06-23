@@ -35,8 +35,17 @@ int R_Init(void);
 /* shutdown renderer */
 void R_Quit(void);
 
+/* clear screen */
+void R_Clear(Uint8 color);
+
 /* draw scene */
-int R_Draw(void);
+void R_Draw(void);
+
+/* draw console */
+void R_DrawConsole(void);
+
+/* flip to visible screen */
+void R_Flip(void);
 
 /* set palette colors */
 void R_SetPalette(Uint8 *palette);

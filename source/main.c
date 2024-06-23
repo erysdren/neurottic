@@ -34,6 +34,7 @@ SOFTWARE.
 void Quit(void)
 {
 	Log("Shutting down");
+	R_Quit();
 	MS_UnloadMapSet();
 	AU_Quit();
 	LM_Quit();
@@ -116,14 +117,14 @@ int SDL_AppInit(void **appstate, int argc, char **argv)
 	if (MS_LoadMap(0) != 0)
 		Die(SDL_GetError());
 
-#if 0
-	/* set music volume */
-	AU_SetMusicVolume(0.5);
-
-	/* play music */
-	if (AU_PlayMusic("FASTWAY", SDL_FALSE) != 0)
+	/* initialize renderer */
+	if (R_Init() != 0)
 		Die(SDL_GetError());
-#endif
+
+	/* set palette */
+	Uint8 *palette = (Uint8 *)LM_LoadLump("PAL", NULL);
+	R_SetPalette(palette);
+	SDL_free(palette);
 
 	return 0;
 }
@@ -135,6 +136,9 @@ void SDL_AppQuit(void *appstate)
 
 int SDL_AppIterate(void *appstate)
 {
+	R_Clear(0xFF);
+	R_Draw();
+	R_Flip();
 	return 0;
 }
 

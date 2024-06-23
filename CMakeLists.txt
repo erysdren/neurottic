@@ -10,7 +10,7 @@ set(NEUROTTIC_SOURCES
 	${PROJECT_SOURCE_DIR}/source/main.c
 	${PROJECT_SOURCE_DIR}/source/mapset.c
 	${PROJECT_SOURCE_DIR}/source/math_utilities.c
-	${PROJECT_SOURCE_DIR}/source/renderer_rcl.c
+	${PROJECT_SOURCE_DIR}/source/renderer_software.c
 	${PROJECT_SOURCE_DIR}/source/rlew.c
 )
 
