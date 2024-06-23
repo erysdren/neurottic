@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 /* start logging to specified filename, or NULL */
-int Logging_Start(const char *filename, SDL_bool append);
+int Logging_Init(const char *filename, SDL_bool append);
 
 /* shutdown logging */
 void Logging_Quit(void);

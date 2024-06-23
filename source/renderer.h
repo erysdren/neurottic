@@ -56,6 +56,9 @@ void R_SetPosition(float x, float y, float z);
 /* set render angles */
 void R_SetAngles(float x, float y, float z);
 
+/* draw string at x,y with color */
+void R_DrawString(int x, int y, Uint8 color, const char *fmt, ...);
+
 #ifdef __cplusplus
 }
 #endif

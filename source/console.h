@@ -23,49 +23,29 @@ SOFTWARE.
 */
 
 #pragma once
-#ifndef _NEUROTTIC_H_
-#define _NEUROTTIC_H_
+#ifndef _CONSOLE_H_
+#define _CONSOLE_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* libc */
-#include <math.h>
-#include <stdlib.h>
+int Console_Init(void);
 
-/* SDL */
-#include <SDL3/SDL.h>
-#include <SDL3_net/SDL_net.h>
-#include <SDL3_mixer/SDL_mixer.h>
+void Console_Quit(void);
 
-/* audio manager */
-#include "audio_manager.h"
+void Console_Print(const char *s);
 
-/* console */
-#include "console.h"
+void Console_Printf(const char *fmt, ...);
 
-/* logging */
-#include "logging.h"
+void Console_HandleInput(int c);
 
-/* lump manager */
-#include "lump_manager.h"
+void Console_Clear(void);
 
-/* main */
-#include "main.h"
+void Console_ClearInput(void);
 
-/* mapset */
-#include "mapset.h"
-
-/* math utilities */
-#include "math_utilities.h"
-
-/* renderer */
-#include "renderer.h"
-
-/* rlew compression */
-#include "rlew.h"
+char **Console_GetLines(int *n);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* _NEUROTTIC_H_ */
+#endif /* _CONSOLE_H_ */

@@ -39,6 +39,7 @@ void Quit(void)
 	AU_Quit();
 	LM_Quit();
 	Logging_Quit();
+	Console_Quit();
 	SDLNet_Quit();
 	SDL_Quit();
 }
@@ -53,8 +54,12 @@ int Start(void)
 	if (SDLNet_Init() != 0)
 		return -1;
 
+	/* init console */
+	if (Console_Init() != 0)
+		return -1;
+
 	/* start logging */
-	if (Logging_Start("neurottic.log", SDL_FALSE) != 0)
+	if (Logging_Init("neurottic.log", SDL_FALSE) != 0)
 		return -1;
 
 	/* lump manager */
@@ -121,6 +126,10 @@ int SDL_AppInit(void **appstate, int argc, char **argv)
 	if (R_Init() != 0)
 		Die(SDL_GetError());
 
+	/* play music */
+	AU_SetMusicVolume(0.5);
+	AU_PlayMusic("FASTWAY", SDL_TRUE);
+
 	/* set palette */
 	Uint8 *palette = (Uint8 *)LM_LoadLump("PAL", NULL);
 	R_SetPalette(palette);
@@ -136,8 +145,9 @@ void SDL_AppQuit(void *appstate)
 
 int SDL_AppIterate(void *appstate)
 {
-	R_Clear(0xFF);
+	R_Clear(0x00);
 	R_Draw();
+	R_DrawConsole();
 	R_Flip();
 	return 0;
 }

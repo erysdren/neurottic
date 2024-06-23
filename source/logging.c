@@ -49,23 +49,25 @@ static void log_func(void *userdata, int category, SDL_LogPriority priority, con
 
 	fprintf(stdout, "[%09.4f] %s%s\n", seconds, priorities[priority], message);
 
+	Console_Print(message);
+
 	if (userdata)
 		SDL_IOprintf((SDL_IOStream *)userdata, "[%09.4f] %s%s\n", seconds, priorities[priority], message);
 }
 
-int Logging_Start(const char *filename, SDL_bool append)
+int Logging_Init(const char *filename, SDL_bool append)
 {
 	if (filename)
 	{
 		if (log_file)
 		{
-			LogWarning("Logging_Start(): Closing existing log file");
+			LogWarning("Logging_Init(): Closing existing log file");
 			SDL_CloseIO(log_file);
 		}
 
 		log_file = SDL_IOFromFile(filename, append ? "ab" : "wb");
 		if (!log_file)
-			LogWarning("Logging_Start(): Unable to open log file \"%s\" for writing", filename);
+			LogWarning("Logging_Init(): Unable to open log file \"%s\" for writing", filename);
 	}
 
 	SDL_SetLogOutputFunction(log_func, (void *)log_file);

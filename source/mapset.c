@@ -36,7 +36,8 @@ enum {
 	MAPSET_COMMBAT = 1 << 1,
 	MAPSET_LUDICROUS = 1 << 2,
 	MAPSET_SHAREWARE = 1 << 3,
-	MAPSET_RANDROTT = 1 << 4
+	MAPSET_REGISTERED = 1 << 4,
+	MAPSET_RANDROTT = 1 << 5
 };
 
 /* map flags */
@@ -163,6 +164,11 @@ int MS_LoadMapSet(const char *filename)
 		SDL_ReadU32LE(io, &maps[i].plane_sizes[1]);
 		SDL_ReadU32LE(io, &maps[i].plane_sizes[2]);
 		SDL_ReadIO(io, maps[i].name, 24);
+
+		if (maps[i].tag == rle_tag_registered)
+			flags |= MAPSET_REGISTERED;
+		else if (maps[i].tag == rle_tag_shareware)
+			flags |= MAPSET_SHAREWARE;
 	}
 
 	/* save data */

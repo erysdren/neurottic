@@ -24,6 +24,8 @@ SOFTWARE.
 
 #include "neurottic.h"
 
+#include "thirdp/font8x8_basic.h"
+
 /*
  * software renderer implementation
  */
@@ -120,7 +122,18 @@ void R_Draw(void)
 /* draw console */
 void R_DrawConsole(void)
 {
+	int num_lines;
+	char **lines = Console_GetLines(&num_lines);
+	int y = 0;
 
+	for (int i = 0; i < num_lines; i++)
+	{
+		if (lines[i])
+		{
+			R_DrawString(0, y, 0xFF, lines[i]);
+			y += 8;
+		}
+	}
 }
 
 /* flip to visible screen */
@@ -155,4 +168,40 @@ void R_SetPosition(float x, float y, float z)
 void R_SetAngles(float x, float y, float z)
 {
 
+}
+
+static void draw_font8x8(int x, int y, Uint8 color, char *bitmap)
+{
+	int xx, yy;
+
+	for (yy = y; yy < y + 8; yy++)
+	{
+		for (xx = x; xx < x + 8; xx++)
+		{
+			if (xx < 0 || yy < 0)
+				continue;
+			if (xx >= surface8->w || yy >= surface8->h)
+				break;
+
+			if (bitmap[yy - y] & 1 << xx - x)
+				((Uint8 *)surface8->pixels)[yy * surface8->pitch + xx] = color;
+		}
+	}
+}
+
+/* draw string at x,y with color */
+void R_DrawString(int x, int y, Uint8 color, const char *fmt, ...)
+{
+	static char buffer[1024];
+	va_list ap;
+
+	va_start(ap, fmt);
+	SDL_vsnprintf(buffer, sizeof(buffer), fmt, ap);
+	va_end(ap);
+
+	for (int i = 0; i < SDL_strlen(buffer); i++)
+	{
+		draw_font8x8(x, y, color, font8x8_basic[buffer[i]]);
+		x += 8;
+	}
 }
