@@ -54,12 +54,11 @@ int R_Init(void)
 	if (!window)
 		return -1;
 
-	SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
-
 	renderer = SDL_CreateRenderer(window, NULL);
 	if (!renderer)
 		return -1;
 
+	SDL_SetRenderVSync(renderer, 2);
 	SDL_SetRenderLogicalPresentation(renderer, RENDER_WIDTH, RENDER_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX, SDL_SCALEMODE_NEAREST);
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -136,6 +135,7 @@ void R_DrawConsole(void)
 	char **lines = Console_GetLines(&num_lines);
 	int y = 0;
 
+#if 0
 	/* draw pattern */
 	for (int y = 0; y < surface8->h; y += 8)
 	{
@@ -145,6 +145,7 @@ void R_DrawConsole(void)
 			R_DrawRect(x + 4, y + 4, 4, 4, 31);
 		}
 	}
+#endif
 
 	/* draw lines */
 	for (int i = 0; i < num_lines; i++)

@@ -29,6 +29,8 @@ SOFTWARE.
 /* create SDL_Surface from planar pic */
 SDL_Surface *R_SurfaceFromPic(int w, int h, Uint8 *pixels)
 {
+	/* NOTE: this function is incredibly stupid! and probably dangerous! */
+
 	if (!w || !h || !pixels)
 		return NULL;
 
@@ -37,15 +39,18 @@ SDL_Surface *R_SurfaceFromPic(int w, int h, Uint8 *pixels)
 		return NULL;
 
 	/* copy plane by plane, pixel by pixel */
-	for (int plane = 0; plane < NUM_PLANES; plane++)
+	for (int p = 0; p < 4; p++)
 	{
 		for (int y = 0; y < h; y++)
 		{
+			Uint8 *row = &((Uint8 *)surface->pixels)[y * surface->pitch];
+
 			for (int x = 0; x < w; x++)
 			{
-				Uint8 *dst = &((Uint8 *)surface->pixels)[y * surface->pitch];
-				dst[x * NUM_PLANES + plane] = pixels[y * w + x];
+				row[x * NUM_PLANES + p] = pixels[x];
 			}
+
+			pixels += w;
 		}
 	}
 

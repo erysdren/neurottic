@@ -41,8 +41,6 @@ static int gamestate = GAMESTATE_CONSOLE;
  * engine functions
  */
 
-SDL_Surface *testpic;
-
 void Quit(void)
 {
 	Log("Shutting down");
@@ -150,17 +148,11 @@ int SDL_AppInit(void **appstate, int argc, char **argv)
 	R_SetPalette(palette);
 	SDL_free(palette);
 
-	/* load a pic */
-	Uint8 *mmbk = (Uint8 *)LM_LoadLump("MMBK", NULL);
-	testpic = R_SurfaceFromPic(mmbk[0], mmbk[1], &mmbk[2]);
-	SDL_free(mmbk);
-
 	return 0;
 }
 
 void SDL_AppQuit(void *appstate)
 {
-	SDL_DestroySurface(testpic);
 	Quit();
 }
 
@@ -178,9 +170,6 @@ int SDL_AppIterate(void *appstate)
 		default:
 			return -1;
 	}
-
-	if (R_DrawSurface(0, 0, testpic->w, testpic->h, testpic) != 0)
-		Log(SDL_GetError());
 
 	R_Flip();
 	return 0;
