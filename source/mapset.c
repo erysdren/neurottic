@@ -130,7 +130,7 @@ int MS_LoadMapSet(const char *filename)
 	else
 	{
 		SDL_CloseIO(io);
-		return LogError("MS_LoadMapSet(): Invalid magic %.*s", 4, magic);
+		return LogError("MS_LoadMapSet(): Invalid magic \"%.*s\"", 4, magic);
 	}
 
 	/* test version */
@@ -142,7 +142,7 @@ int MS_LoadMapSet(const char *filename)
 	else if (version != rtl_version)
 	{
 		SDL_CloseIO(io);
-		return LogError("MS_LoadMapSet(): Invalid version 0x%08x", version);
+		return LogError("MS_LoadMapSet(): Invalid version 0x%04x", version);
 	}
 
 	/* unload whatever is there */
@@ -200,16 +200,18 @@ int MS_LoadMap(int map)
 	if (!maps[map].used)
 		return LogError("MS_LoadMap(): Map %d is not used in this mapset", map);
 
-	map_index = map;
+	/* unload current map */
+	MS_UnloadMap();
 
-	map_planes[0] = SDL_calloc(1, 128 * 128 * 2);
-	map_planes[1] = SDL_calloc(1, 128 * 128 * 2);
-	map_planes[2] = SDL_calloc(1, 128 * 128 * 2);
+	/* set index */
+	map_index = map;
 
 	/* decompress planes */
 	for (int i = 0; i < 3; i++)
 	{
 		void *compressed = SDL_calloc(1, maps[map].plane_sizes[i]);
+
+		map_planes[i] = SDL_calloc(1, 128 * 128 * 2);
 
 		SDL_SeekIO(mapset_io, maps[map].plane_offsets[i], SDL_IO_SEEK_SET);
 		SDL_ReadIO(mapset_io, compressed, maps[map].plane_sizes[i]);
@@ -219,7 +221,7 @@ int MS_LoadMap(int map)
 		SDL_free(compressed);
 	}
 
-	return 0;
+	return Log("Successfully loaded map %d: \"%.*s\"", map, 24, maps[map].name);
 }
 
 void MS_UnloadMap(void)
@@ -240,5 +242,6 @@ Uint16 *MS_GetCurrentMapPlane(int plane)
 		LogError("MS_GetCurrentMapPlane(): Plane %d is out of range", plane);
 		return NULL;
 	}
+
 	return map_planes[plane];
 }
