@@ -26,7 +26,9 @@ SOFTWARE.
 
 #include <ctype.h>
 
-#define CON_NUMLINES (50)
+#define CON_FONTWIDTH (8)
+#define CON_FONTHEIGHT (8)
+#define CON_NUMLINES (RENDER_HEIGHT / CON_FONTHEIGHT)
 #define CON_LINESIZE (80)
 #define CON_BUFSIZE (4096)
 #define CON_PREFIXSIZE (2)

@@ -29,6 +29,9 @@ SOFTWARE.
 extern "C" {
 #endif
 
+#define RENDER_WIDTH (640)
+#define RENDER_HEIGHT (480)
+
 /* initialize renderer */
 int R_Init(void);
 
@@ -40,6 +43,9 @@ void R_Clear(Uint8 color);
 
 /* draw scene */
 void R_Draw(void);
+
+/* draw filled rect */
+void R_DrawRect(int x, int y, int w, int h, Uint8 color);
 
 /* draw console */
 void R_DrawConsole(void);

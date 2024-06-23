@@ -27,6 +27,16 @@ SOFTWARE.
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL_main.h>
 
+/* current game state enum */
+enum {
+	GAMESTATE_CONSOLE,
+	GAMESTATE_MENU,
+	GAMESTATE_LOADING,
+	GAMESTATE_INGAME,
+};
+
+static int gamestate = GAMESTATE_CONSOLE;
+
 /*
  * engine functions
  */
@@ -149,20 +159,39 @@ void SDL_AppQuit(void *appstate)
 int SDL_AppIterate(void *appstate)
 {
 	R_Clear(0x00);
-	R_Draw();
-	R_DrawConsole();
+
+	switch (gamestate)
+	{
+		case GAMESTATE_CONSOLE:
+			R_Draw();
+			R_DrawConsole();
+			break;
+
+		default:
+			return -1;
+	}
+
 	R_Flip();
 	return 0;
 }
 
 int SDL_AppEvent(void *appstate, const SDL_Event *event)
 {
+	/* always quit */
 	if (event->type == SDL_EVENT_QUIT)
 		return 1;
 
-	/* handle console inputs */
-	if (event->type == SDL_EVENT_KEY_DOWN)
-		Console_HandleInput(event->key.keysym.sym);
+	/* handle gamestate-specific events */
+	switch (gamestate)
+	{
+		case GAMESTATE_CONSOLE:
+			if (event->type == SDL_EVENT_KEY_DOWN)
+				Console_HandleInput(event->key.keysym.sym);
+			break;
+
+		default:
+			break;
+	}
 
 	return 0;
 }

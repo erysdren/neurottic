@@ -30,11 +30,6 @@ SOFTWARE.
  * software renderer implementation
  */
 
-#define WINDOW_WIDTH (640)
-#define WINDOW_HEIGHT (480)
-#define RENDER_WIDTH (640)
-#define RENDER_HEIGHT (400)
-
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 static SDL_Surface *surface8 = NULL;
@@ -55,7 +50,7 @@ int R_Init(void)
 	if (!planes[0] || !planes[1] || !planes[2])
 		return LogError("R_Init(): No map loaded");
 
-	window = SDL_CreateWindow("NEUROTTIC", WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow("NEUROTTIC", RENDER_WIDTH, RENDER_HEIGHT, SDL_WINDOW_RESIZABLE);
 	if (!window)
 		return -1;
 
@@ -65,7 +60,7 @@ int R_Init(void)
 	if (!renderer)
 		return -1;
 
-	SDL_SetRenderLogicalPresentation(renderer, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX, SDL_SCALEMODE_NEAREST);
+	SDL_SetRenderLogicalPresentation(renderer, RENDER_WIDTH, RENDER_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX, SDL_SCALEMODE_NEAREST);
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
@@ -119,6 +114,13 @@ void R_Draw(void)
 
 }
 
+/* draw filled rect */
+void R_DrawRect(int x, int y, int w, int h, Uint8 color)
+{
+	for (int yy = y; yy < y + h; yy++)
+		SDL_memset(&((Uint8 *)surface8->pixels)[yy * surface8->pitch + x], color, w);
+}
+
 /* draw console */
 void R_DrawConsole(void)
 {
@@ -127,12 +129,22 @@ void R_DrawConsole(void)
 	char **lines = Console_GetLines(&num_lines);
 	int y = 0;
 
+	/* draw pattern */
+	for (int y = 0; y < surface8->h; y += 8)
+	{
+		for (int x = 0; x < surface8->w; x += 8)
+		{
+			R_DrawRect(x, y, 4, 4, 31);
+			R_DrawRect(x + 4, y + 4, 4, 4, 31);
+		}
+	}
+
 	/* draw lines */
 	for (int i = 0; i < num_lines; i++)
 	{
 		if (lines[i])
 		{
-			R_DrawString(0, y, 0xFF, lines[i]);
+			R_DrawString(0, y, 16, lines[i]);
 			y += 8;
 
 			/* leave room for input line */
@@ -142,7 +154,7 @@ void R_DrawConsole(void)
 	}
 
 	/* draw input line */
-	R_DrawString(0, RENDER_HEIGHT - 8, 0xFF, input);
+	R_DrawString(0, RENDER_HEIGHT - 8, 16, input);
 }
 
 /* flip to visible screen */
