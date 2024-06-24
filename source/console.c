@@ -199,6 +199,8 @@ void Console_Quit(void)
 	{
 		if (cvars[i].value_string)
 			SDL_free(cvars[i].value_string);
+
+		cvars[i].value_string = NULL;
 	}
 }
 
