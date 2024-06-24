@@ -258,7 +258,7 @@ void Console_Evaluate(const char *s)
 	int argc;
 	char **argv = tokenize(s, &argc);
 
-	if (!argv || !argc)
+	if (!argv || argc < 1)
 		return;
 
 	/* search for cmd */
