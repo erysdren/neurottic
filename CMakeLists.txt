@@ -6,6 +6,7 @@ set(NEUROTIC_EXEC neurottic)
 set(NEUROTTIC_SOURCES
 	${PROJECT_SOURCE_DIR}/source/audio_manager.c
 	${PROJECT_SOURCE_DIR}/source/console.c
+	${PROJECT_SOURCE_DIR}/source/darkwar.c
 	${PROJECT_SOURCE_DIR}/source/logging.c
 	${PROJECT_SOURCE_DIR}/source/lump_manager.c
 	${PROJECT_SOURCE_DIR}/source/main.c
