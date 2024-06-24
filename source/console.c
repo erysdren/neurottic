@@ -65,6 +65,20 @@ static int input_cursor = 0;
  *
  */
 
+static int CMD_PlayMusic(int argc, char **argv)
+{
+	if (argc != 2)
+	{
+		Console_Printf("Usage: playmusic <trackname>");
+		return 0;
+	}
+
+	if (AU_PlayMusic(argv[1], SDL_FALSE) == 0)
+		Console_Printf("Playing %s", argv[1]);
+
+	return 0;
+}
+
 static int CMD_Quit(int argc, char **argv)
 {
 	Quit();
@@ -74,7 +88,8 @@ static int CMD_Quit(int argc, char **argv)
 
 static cmd_t commands[] = {
 	{"quit", CMD_Quit},
-	{"exit", CMD_Quit}
+	{"exit", CMD_Quit},
+	{"playmusic", CMD_PlayMusic}
 };
 
 /*
@@ -225,7 +240,10 @@ void Console_Evaluate(const char *s)
 	for (int i = 0; i < ASIZE(commands); i++)
 	{
 		if (SDL_strcasecmp(argv[0], commands[i].name) == 0)
+		{
 			commands[i].func(argc, argv);
+			return;
+		}
 	}
 
 	Log("Unknown command or cvar entered");
