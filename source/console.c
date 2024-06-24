@@ -92,7 +92,7 @@ static int CMD_Quit(int argc, char **argv)
 	return 0;
 }
 
-static cmd_t commands[] = {
+static cmd_t cmds[] = {
 	{"quit", CMD_Quit},
 	{"exit", CMD_Quit},
 	{"playmusic", CMD_PlayMusic}
@@ -204,52 +204,6 @@ void Console_Quit(void)
 	}
 }
 
-int Console_SetCvar(const char *name, const char *value)
-{
-	cvar_t *cvar = NULL;
-
-	if (!name)
-		return LogError("Console_SetCvar(): NULL pointer passed as name");
-
-	/* check for cvars */
-	for (int i = 0; i < ASIZE(cvars); i++)
-	{
-		if (SDL_strcasecmp(name, cvars[i].name) == 0)
-		{
-			cvar = &cvars[i];
-			break;
-		}
-	}
-
-	if (cvar)
-	{
-		if (value)
-		{
-			/* set cvar cvar */
-			if (cvar->value_string)
-				SDL_free(cvar->value_string);
-
-			cvar->value_string = SDL_strdup(value);
-			cvar->value_int = SDL_atoi(value);
-			cvar->value_float = SDL_atof(value);
-		}
-		else
-		{
-			/* print cvar value */
-			if (cvar->value_string)
-				Log("%s: %s (default: %s)", cvar->name, cvar->value_string, cvar->value_default);
-			else
-				Log("%s: %s (default)", cvar->name, cvar->value_default);
-		}
-
-		return 0;
-	}
-	else
-	{
-		return -1;
-	}
-}
-
 void Console_Print(const char *s)
 {
 	int i;
@@ -307,21 +261,50 @@ void Console_Evaluate(const char *s)
 	if (!argv || !argc)
 		return;
 
-	/* check for commands */
-	for (int i = 0; i < ASIZE(commands); i++)
+	/* search for cmd */
+	for (int i = 0; i < ASIZE(cmds); i++)
 	{
-		if (SDL_strcasecmp(argv[0], commands[i].name) == 0)
+		if (SDL_strcasecmp(argv[0], cmds[i].name) == 0)
 		{
-			commands[i].func(argc, argv);
+			cmds[i].func(argc, argv);
 			return;
 		}
 	}
 
-	/* set cvar */
-	if (Console_SetCvar(argv[0], argv[1]) != 0)
+	/* search for cvar */
+	for (int i = 0; i < ASIZE(cvars); i++)
 	{
-		Log("Unknown command or cvar entered");
+		if (SDL_strcasecmp(argv[0], cvars[i].name) == 0)
+		{
+			if (argc > 1)
+			{
+				/* set cvar value */
+				if (cvars[i].value_string)
+					Log("%s: Changed from %s to %s", cvars[i].name, cvars[i].value_string, argv[1]);
+				else
+					Log("%s: Changed from %s to %s", cvars[i].name, cvars[i].value_default, argv[1]);
+
+				if (cvars[i].value_string)
+					SDL_free(cvars[i].value_string);
+
+				cvars[i].value_string = SDL_strdup(argv[1]);
+				cvars[i].value_int = SDL_atoi(argv[1]);
+				cvars[i].value_float = SDL_atof(argv[1]);
+			}
+			else
+			{
+				/* print cvar value */
+				if (cvars[i].value_string)
+					Log("%s: %s (default: %s)", cvars[i].name, cvars[i].value_string, cvars[i].value_default);
+				else
+					Log("%s: %s (default)", cvars[i].name, cvars[i].value_default);
+			}
+
+			return;
+		}
 	}
+
+	Log("\"%s\" is not a valid command or cvar", argv[0]);
 }
 
 void Console_HandleInput(int c)
