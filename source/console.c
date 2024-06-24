@@ -24,8 +24,6 @@ SOFTWARE.
 
 #include "neurottic.h"
 
-#include <ctype.h>
-
 /*
  *
  * types & defines
@@ -43,6 +41,14 @@ typedef struct cmd {
 	const char *name;
 	int (*func)(int argc, char **argv);
 } cmd_t;
+
+typedef struct cvar {
+	const char *name;
+	const char *value_default;
+	char *value_string;
+	float value_float;
+	Sint32 value_int;
+} cvar_t;
 
 /*
  *
@@ -90,6 +96,16 @@ static cmd_t commands[] = {
 	{"quit", CMD_Quit},
 	{"exit", CMD_Quit},
 	{"playmusic", CMD_PlayMusic}
+};
+
+/*
+ *
+ * cvars
+ *
+ */
+
+static cvar_t cvars[] = {
+	{"music_volume", "0.5"}
 };
 
 /*
@@ -178,6 +194,58 @@ void Console_Quit(void)
 	SDL_memset(input, 0, sizeof(input));
 	input_len = 0;
 	input_cursor = 0;
+
+	for (int i = 0; i < ASIZE(cvars); i++)
+	{
+		if (cvars[i].value_string)
+			SDL_free(cvars[i].value_string);
+	}
+}
+
+int Console_SetCvar(const char *name, const char *value)
+{
+	cvar_t *cvar = NULL;
+
+	if (!name)
+		return LogError("Console_SetCvar(): NULL pointer passed as name");
+
+	/* check for cvars */
+	for (int i = 0; i < ASIZE(cvars); i++)
+	{
+		if (SDL_strcasecmp(name, cvars[i].name) == 0)
+		{
+			cvar = &cvars[i];
+			break;
+		}
+	}
+
+	if (cvar)
+	{
+		if (value)
+		{
+			/* set cvar cvar */
+			if (cvar->value_string)
+				SDL_free(cvar->value_string);
+
+			cvar->value_string = SDL_strdup(value);
+			cvar->value_int = SDL_atoi(value);
+			cvar->value_float = SDL_atof(value);
+		}
+		else
+		{
+			/* print cvar value */
+			if (cvar->value_string)
+				Log("%s: %s (default: %s)", cvar->name, cvar->value_string, cvar->value_default);
+			else
+				Log("%s: %s (default)", cvar->name, cvar->value_default);
+		}
+
+		return 0;
+	}
+	else
+	{
+		return -1;
+	}
 }
 
 void Console_Print(const char *s)
@@ -237,6 +305,7 @@ void Console_Evaluate(const char *s)
 	if (!argv || !argc)
 		return;
 
+	/* check for commands */
 	for (int i = 0; i < ASIZE(commands); i++)
 	{
 		if (SDL_strcasecmp(argv[0], commands[i].name) == 0)
@@ -246,7 +315,11 @@ void Console_Evaluate(const char *s)
 		}
 	}
 
-	Log("Unknown command or cvar entered");
+	/* set cvar */
+	if (Console_SetCvar(argv[0], argv[1]) != 0)
+	{
+		Log("Unknown command or cvar entered");
+	}
 }
 
 void Console_HandleInput(int c)

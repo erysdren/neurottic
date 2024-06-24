@@ -32,6 +32,7 @@ extern "C" {
 /* libc */
 #include <math.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 /* SDL */
 #include <SDL3/SDL.h>

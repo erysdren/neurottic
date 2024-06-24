@@ -39,7 +39,7 @@ SDL_Surface *R_SurfaceFromPic(int w, int h, Uint8 *pixels)
 		return NULL;
 
 	/* copy plane by plane, pixel by pixel */
-	for (int p = 0; p < 4; p++)
+	for (int p = 0; p < NUM_PLANES; p++)
 	{
 		for (int y = 0; y < h; y++)
 		{

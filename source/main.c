@@ -209,7 +209,7 @@ int SDL_AppEvent(void *appstate, const SDL_Event *event)
 	{
 		case GAMESTATE_CONSOLE:
 			if (event->type == SDL_EVENT_KEY_DOWN)
-				Console_HandleInput(event->key.keysym.sym);
+				Console_HandleInput(event->key.key);
 			break;
 
 		default:
