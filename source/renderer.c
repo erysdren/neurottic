@@ -59,6 +59,76 @@ SDL_Surface *R_SurfaceFromPic(int w, int h, Uint8 *pixels)
 	return surface;
 }
 
+/* create SDL_Surface from planar pic */
+SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio)
+{
+	Uint8 w, h;
+
+	/* stoopid */
+	if (!io)
+	{
+		LogError("R_SurfaceFromPicIO(): NULL pointer passed as IOStream");
+		return NULL;
+	}
+
+	/* read width */
+	if (SDL_ReadU8(io, &w) != SDL_TRUE)
+	{
+		LogError("R_SurfaceFromPicIO(): Failed to read width from IOStream");
+		return NULL;
+	}
+
+	/* read height */
+	if (SDL_ReadU8(io, &h) != SDL_TRUE)
+	{
+		LogError("R_SurfaceFromPicIO(): Failed to read height from IOStream");
+		return NULL;
+	}
+
+	/* create surface */
+	SDL_Surface *surface = SDL_CreateSurface(w * NUM_PLANES, h, SDL_PIXELFORMAT_INDEX8);
+	if (!surface)
+		return NULL;
+
+	/* allocate some memory to read the source pixels */
+	Uint8 *src = (Uint8 *)alloca(w);
+	if (!src)
+	{
+		LogError("R_SurfaceFromPicIO(): alloca() failed with %zu bytes", w);
+		return NULL;
+	}
+
+	/* plane by plane */
+	for (int p = 0; p < NUM_PLANES; p++)
+	{
+		/* row by row */
+		for (int y = 0; y < h; y++)
+		{
+			/* read plane */
+			SDL_ReadIO(io, (void *)src, w);
+
+			/* get destination pointer */
+			/* TODO: should this also be a temporary IOStream? */
+			Uint8 *dst = &((Uint8 *)surface->pixels)[y * surface->pitch];
+
+			/* plot pixels */
+			for (int x = 0; x < w; x++)
+			{
+				dst[x * NUM_PLANES + p] = src[x];
+			}
+		}
+	}
+
+	/* close io stream if user requested */
+	if (closeio)
+		SDL_CloseIO(io);
+
+	/* set surface key color */
+	SDL_SetSurfaceColorKey(surface, SDL_TRUE, 0xFF);
+
+	return surface;
+}
+
 /* draw console */
 void R_DrawConsole(void)
 {
