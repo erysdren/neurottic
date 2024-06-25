@@ -77,6 +77,49 @@ float towardsf(float value, float change, float to)
 	return value;
 }
 
+int wrap(int value, int mod)
+{
+	int cmp = value < 0;
+	return cmp * mod + value % mod - cmp;
+}
+
+int remap(int value, int a1, int a2, int b1, int b2)
+{
+	return b1 + (value - a1) * (b2 - b1) / (a2 - a1);
+}
+
+int min(int a, int b)
+{
+	return a < b ? a : b;
+}
+
+int max(int a, int b)
+{
+	return a > b ? a : b;
+}
+
+int clamp(int value, int _min, int _max)
+{
+	return min(max(value, _min), _max);
+}
+
+int towards(int value, int change, int to)
+{
+	int diff;
+
+	if (value < to)
+		value += change;
+	else
+		value -= change;
+
+	diff = SDL_abs(value - to);
+
+	if (diff < change)
+		value = to;
+
+	return value;
+}
+
 void Vec3f_anglevectors(Vec3f angles, Vec3f *forward, Vec3f *right, Vec3f *up)
 {
 	float angle;

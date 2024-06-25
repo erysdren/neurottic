@@ -87,12 +87,20 @@ typedef union Mat4i {
 
 float rad2degf(float x);
 float deg2radf(float x);
+
 float wrapf(float value, float mod);
 float remapf(float value, float a1, float a2, float b1, float b2);
 float minf(float a, float b);
 float maxf(float a, float b);
 float clampf(float value, float min, float max);
 float towardsf(float value, float change, float to);
+
+int wrap(int value, int mod);
+int remap(int value, int a1, int a2, int b1, int b2);
+int min(int a, int b);
+int max(int a, int b);
+int clamp(int value, int _min, int _max);
+int towards(int value, int change, int to);
 
 void Vec3f_anglevectors(Vec3f angles, Vec3f *forward, Vec3f *right, Vec3f *up);
 Vec3f Vec3f_crossproduct(Vec3f v1, Vec3f v2);
