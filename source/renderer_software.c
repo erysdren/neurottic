@@ -115,9 +115,60 @@ int R_Draw(void)
 	return 0;
 }
 
+/* clip rect to size */
+static SDL_bool clip_rect(int *x, int *y, int *w, int *h, int cx, int cy, int cw, int ch)
+{
+	int start_x, start_y, end_x, end_y;
+
+	start_x = cx;
+	start_y = cy;
+	end_x = cx + cw;
+	end_y = cy + ch;
+
+	/* it will never become visible */
+	if (*x >= end_x)
+		return SDL_TRUE;
+	if (*y >= end_y)
+		return SDL_TRUE;
+	if (*x + *w < start_x)
+		return SDL_TRUE;
+	if (*y + *h < start_y)
+		return SDL_TRUE;
+
+	/* clip to top edge */
+	if (*y < start_y)
+	{
+		*h += *y - start_y;
+		*y = start_y;
+	}
+
+	/* clip to bottom edge */
+	if (*y + *h >= end_y)
+	{
+		*h = end_y - *y;
+	}
+
+	/* clip to left edge */
+	if (*x < start_x)
+	{
+		*w += *x - start_x;
+		*x = start_x;
+	}
+
+	/* clip to right edge */
+	if (*x + *w >= end_x)
+	{
+		*w = end_x - *x;
+	}
+
+	return SDL_FALSE;
+}
+
 /* draw filled rect */
 void R_DrawRect(int x, int y, int w, int h, Uint8 color)
 {
+	if (clip_rect(&x, &y, &w, &h, 0, 0, surface8->w, surface8->h))
+		return;
 	for (int yy = y; yy < y + h; yy++)
 		SDL_memset(&((Uint8 *)surface8->pixels)[yy * surface8->pitch + x], color, w);
 }
