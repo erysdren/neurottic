@@ -31,9 +31,6 @@ extern "C" {
 
 int Start(void);
 void Quit(void);
-
-int Restart(void);
-
 void Die(const char *fmt, ...);
 
 #ifdef __cplusplus

@@ -52,7 +52,7 @@ void R_DrawRect(int x, int y, int w, int h, Uint8 color);
 int R_DrawSurface(int x, int y, int w, int h, SDL_Surface *surface);
 
 /* draw console */
-void R_DrawConsole(void);
+void R_DrawConsole(Uint8 color);
 
 /* flip to visible screen */
 void R_Flip(void);

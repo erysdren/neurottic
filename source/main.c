@@ -27,6 +27,8 @@ SOFTWARE.
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL_main.h>
 
+#include "grayscale_palette.h"
+
 /* current game state enum */
 enum {
 	GAMESTATE_CONSOLE,
@@ -36,6 +38,56 @@ enum {
 };
 
 static int gamestate = GAMESTATE_CONSOLE;
+
+/*
+ * asset loading thread
+ */
+
+SDL_Thread *asset_load_thread = NULL;
+
+int AssetLoadThread(void *user)
+{
+	/* add lumps searchpath */
+	if (LM_AddPath("lumps") != 0)
+		return -1;
+
+	/* load game wad */
+	if (LM_AddWAD("darkwar.wad") != 0)
+		return -1;
+
+	/* load mapset */
+	if (MS_LoadMapSet("darkwar.rtl") != 0)
+		return -1;
+
+	return 0;
+}
+
+/*
+ * time management
+ */
+
+static Uint64 next_time = 0;
+
+static Uint64 time_left(void)
+{
+	Uint64 now = SDL_GetTicks();
+
+	if (next_time <= now)
+		return 0;
+	else
+		return next_time - now;
+}
+
+static void StartTime(void)
+{
+	next_time = SDL_GetTicks() + RENDER_HZ;
+}
+
+static void UpdateTime(void)
+{
+	SDL_Delay(time_left());
+	next_time += RENDER_HZ;
+}
 
 /*
  * engine functions
@@ -68,6 +120,13 @@ int Start(void)
 	if (Console_Init() != 0)
 		return -1;
 
+	/* initialize renderer */
+	if (R_Init() != 0)
+		return -1;
+
+	/* set grayscale palette before game data is loaded */
+	R_SetPalette(grayscale_palette);
+
 	/* start logging */
 	if (Logging_Init("neurottic.log", SDL_FALSE) != 0)
 		return -1;
@@ -80,13 +139,10 @@ int Start(void)
 	if (AU_Init() != 0)
 		return -1;
 
-	return 0;
-}
+	/* start counting time */
+	StartTime();
 
-int Restart(void)
-{
-	Quit();
-	return Start();
+	return 0;
 }
 
 void Die(const char *fmt, ...)
@@ -107,22 +163,6 @@ void Die(const char *fmt, ...)
 }
 
 /*
- * time management
- */
-
-static Uint64 next_time = 0;
-
-static Uint64 time_left(void)
-{
-	Uint64 now = SDL_GetTicks();
-
-	if (next_time <= now)
-		return 0;
-	else
-		return next_time - now;
-}
-
-/*
  * sdl_main callbacks
  */
 
@@ -132,40 +172,11 @@ int SDL_AppInit(void **appstate, int argc, char **argv)
 	if (Start() != 0)
 		Die(SDL_GetError());
 
-	/* load game wad */
-	if (LM_AddWAD("darkwar.wad") != 0)
-		Die(SDL_GetError());
-
-	/* add lumps searchpath */
-	if (LM_AddPath("lumps") != 0)
-		Die(SDL_GetError());
-
-	/* load mapset */
-	if (MS_LoadMapSet("darkwar.rtl") != 0)
-		Die(SDL_GetError());
-
-	/* load first map */
-	if (MS_LoadMap(0) != 0)
-		Die(SDL_GetError());
-
-	/* initialize renderer */
-	if (R_Init() != 0)
-		Die(SDL_GetError());
-
-	/* play music */
-	AU_SetMusicVolume(0.5);
-	if (AU_PlayMusic("FASTWAY", SDL_TRUE) != 0)
-		Die(SDL_GetError());
-
-	Log("Playing FASTWAY");
-
-	/* set palette */
-	Uint8 *palette = (Uint8 *)LM_LoadLump("PAL", NULL);
-	R_SetPalette(palette);
-	SDL_free(palette);
-
-	/* start counting time */
-	next_time = SDL_GetTicks() + RENDER_HZ;
+	/* load game data in a thread */
+	asset_load_thread = SDL_CreateThread(AssetLoadThread, "AssetLoadThread", NULL);
+	if (!asset_load_thread)
+		Die("Failed to create AssetLoadThread");
+	SDL_DetachThread(asset_load_thread);
 
 	return 0;
 }
@@ -183,7 +194,7 @@ int SDL_AppIterate(void *appstate)
 	{
 		case GAMESTATE_CONSOLE:
 			R_Draw();
-			R_DrawConsole();
+			R_DrawConsole(0xFF);
 			break;
 
 		default:
@@ -192,9 +203,8 @@ int SDL_AppIterate(void *appstate)
 
 	R_Flip();
 
-	/* wait */
-	SDL_Delay(time_left());
-	next_time += RENDER_HZ;
+	UpdateTime();
+
 	return 0;
 }
 

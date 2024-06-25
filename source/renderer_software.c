@@ -36,8 +36,6 @@ static SDL_Surface *surface8 = NULL;
 static SDL_Surface *surface24 = NULL;
 static SDL_Texture *texture = NULL;
 
-static Uint16 *planes[3] = {};
-
 /* initialize renderer */
 int R_Init(void)
 {
@@ -105,13 +103,6 @@ void R_Clear(Uint8 color)
 /* draw scene */
 int R_Draw(void)
 {
-	planes[0] = MS_GetCurrentMapPlane(0);
-	planes[1] = MS_GetCurrentMapPlane(1);
-	planes[2] = MS_GetCurrentMapPlane(2);
-
-	if (!planes[0] || !planes[1] || !planes[2])
-		return LogError("R_Init(): No map loaded");
-
 	return 0;
 }
 

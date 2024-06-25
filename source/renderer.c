@@ -159,7 +159,7 @@ SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio)
 }
 
 /* draw console */
-void R_DrawConsole(void)
+void R_DrawConsole(Uint8 color)
 {
 	int num_lines;
 	char *input = Console_GetInputLine();
@@ -171,7 +171,7 @@ void R_DrawConsole(void)
 	{
 		if (lines[i])
 		{
-			R_DrawString(0, y, 16, lines[i]);
+			R_DrawString(0, y, color, lines[i]);
 			y += 8;
 
 			/* leave room for input line */
@@ -181,5 +181,5 @@ void R_DrawConsole(void)
 	}
 
 	/* draw input line */
-	R_DrawString(0, RENDER_HEIGHT - 8, 16, input);
+	R_DrawString(0, RENDER_HEIGHT - 8, color, input);
 }
