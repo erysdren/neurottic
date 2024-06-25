@@ -105,7 +105,36 @@ SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio)
 		for (int y = 0; y < h; y++)
 		{
 			/* read plane */
-			SDL_ReadIO(io, (void *)src, w);
+			if (SDL_ReadIO(io, (void *)src, w) != w)
+			{
+				/* figure out what went wrong */
+				switch (SDL_GetIOStatus(io))
+				{
+					case SDL_IO_STATUS_ERROR:
+						LogError("R_SurfaceFromPicIO(): General IOStream error");
+						break;
+
+					case SDL_IO_STATUS_EOF:
+						LogError("R_SurfaceFromPicIO(): Reached end of IOStream early");
+						break;
+
+					case SDL_IO_STATUS_NOT_READY:
+						LogError("R_SurfaceFromPicIO(): IOStream not ready");
+						break;
+
+					case SDL_IO_STATUS_WRITEONLY:
+						LogError("R_SurfaceFromPicIO(): Write-only IOStream");
+						break;
+
+					default:
+						LogError("R_SurfaceFromPicIO(): Unknown IOStream error");
+						break;
+				}
+
+				/* cleanup and exit */
+				SDL_DestroySurface(surface);
+				return NULL;
+			}
 
 			/* get destination pointer */
 			/* TODO: should this also be a temporary IOStream? */
