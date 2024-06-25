@@ -58,3 +58,29 @@ SDL_Surface *R_SurfaceFromPic(int w, int h, Uint8 *pixels)
 
 	return surface;
 }
+
+/* draw console */
+void R_DrawConsole(void)
+{
+	int num_lines;
+	char *input = Console_GetInputLine();
+	char **lines = Console_GetLines(&num_lines);
+	int y = 0;
+
+	/* draw lines */
+	for (int i = 0; i < num_lines; i++)
+	{
+		if (lines[i])
+		{
+			R_DrawString(0, y, 16, lines[i]);
+			y += 8;
+
+			/* leave room for input line */
+			if (y >= RENDER_HEIGHT - 8)
+				break;
+		}
+	}
+
+	/* draw input line */
+	R_DrawString(0, RENDER_HEIGHT - 8, 16, input);
+}
