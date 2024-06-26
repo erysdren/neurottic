@@ -85,6 +85,12 @@ static int CMD_PlayMusic(int argc, char **argv)
 	return 0;
 }
 
+static int CMD_StopMusic(int argc, char **argv)
+{
+	AU_StopMusic();
+	return 0;
+}
+
 static int CMD_Quit(int argc, char **argv)
 {
 	Quit();
@@ -95,7 +101,8 @@ static int CMD_Quit(int argc, char **argv)
 static cmd_t cmds[] = {
 	{"quit", CMD_Quit},
 	{"exit", CMD_Quit},
-	{"playmusic", CMD_PlayMusic}
+	{"playmusic", CMD_PlayMusic},
+	{"stopmusic", CMD_StopMusic}
 };
 
 /*
