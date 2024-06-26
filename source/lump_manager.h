@@ -91,6 +91,13 @@ SDL_IOStream *LM_OpenLumpIO(const char *name);
  */
 Sint32 LM_GetLumpIndex(const char *name);
 
+/* cache lump pic
+ *
+ * returns NULL if some error occured, otherwise a pointer to an SDL_Surface
+ * with the picture's contents
+ */
+SDL_Surface *LM_CachePic(const char *name);
+
 #ifdef __cplusplus
 }
 #endif

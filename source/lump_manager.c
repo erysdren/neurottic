@@ -46,6 +46,11 @@ typedef struct wad {
 	void *data;
 } wad_t;
 
+typedef struct cached_pic {
+	char name[8];
+	SDL_Surface *surface;
+} cached_pic_t;
+
 /*
  *
  * globals
@@ -62,6 +67,10 @@ static wad_t **wads = NULL;
 /* paths strings */
 static int num_paths = 0;
 static char **paths = NULL;
+
+/* cached pics */
+static int num_cached_pics = 0;
+static cached_pic_t *cached_pics = NULL;
 
 /*
  *
@@ -116,11 +125,24 @@ void LM_Quit(void)
 		SDL_free(paths);
 	}
 
+	if (cached_pics)
+	{
+		for (int i = 0; i < num_cached_pics; i++)
+		{
+			SDL_DestroySurface(cached_pics[i].surface);
+		}
+
+		SDL_free(cached_pics);
+	}
+
 	num_wads = 0;
 	wads = NULL;
 
 	num_paths = 0;
 	paths = NULL;
+
+	num_cached_pics = 0;
+	cached_pics = NULL;
 
 	started = SDL_FALSE;
 }
@@ -351,4 +373,39 @@ Sint32 LM_GetLumpIndex(const char *name)
 	}
 
 	return LogError("LM_GetLumpIndex(): Lump \"%s\" was not found", name);
+}
+
+SDL_Surface *LM_CachePic(const char *name)
+{
+	/* check if cached */
+	for (int i = 0; i < num_cached_pics; i++)
+	{
+		if (SDL_strncasecmp(name, cached_pics[i].name, 8) == 0)
+		{
+			return cached_pics[i].surface;
+		}
+	}
+
+	/* load lump */
+	SDL_IOStream *io = LM_OpenLumpIO(name);
+	if (!io)
+		return NULL;
+
+	/* convert to surface */
+	SDL_Surface *surface = R_SurfaceFromPicIO(io, SDL_TRUE);
+	if (surface == NULL)
+	{
+		SDL_CloseIO(io);
+		return NULL;
+	}
+
+	/* add to cache */
+	num_cached_pics++;
+	cached_pics = SDL_realloc(cached_pics, num_cached_pics * sizeof(cached_pic_t));
+	SDL_strlcpy(cached_pics[num_cached_pics - 1].name, name, 8);
+	cached_pics[num_cached_pics - 1].surface = surface;
+
+	Log("Cached pic \"%s\" (pic cache size: %d)", name, num_cached_pics);
+
+	return surface;
 }
