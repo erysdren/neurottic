@@ -82,7 +82,7 @@ int AU_PlayMusic(const char *name, SDL_bool loop)
 
 	/* load music chunk */
 	chunk = Mix_LoadMUS_IO(io, SDL_TRUE);
-	if (chunk == NULL)
+	if (!chunk)
 		return -1;
 
 	/* stop playing current music */
