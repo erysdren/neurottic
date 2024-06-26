@@ -181,7 +181,7 @@ void R_Flip(void)
 	SDL_RenderPresent(renderer);
 }
 
-void R_SetPalette(Uint8 *palette)
+void R_SetPalette_REAL(Uint8 *palette)
 {
 	SDL_Color colors[256];
 

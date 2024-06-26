@@ -40,12 +40,12 @@ enum {
 static int gamestate = GAMESTATE_CONSOLE;
 
 /*
- * asset loading thread
+ * load assets
  */
 
-SDL_Thread *asset_load_thread = NULL;
+static SDL_bool assets_loaded = SDL_FALSE;
 
-int AssetLoadThread(void *user)
+int LoadAssets(void)
 {
 	/* add lumps searchpath */
 	if (LM_AddPath("lumps") != 0)
@@ -58,6 +58,12 @@ int AssetLoadThread(void *user)
 	/* load mapset */
 	if (MS_LoadMapSet("darkwar.rtl") != 0)
 		return -1;
+
+	Uint8 *pal = (Uint8 *)LM_LoadLump("PAL", NULL);
+	R_SetPalette(pal);
+	SDL_free(pal);
+
+	assets_loaded = SDL_TRUE;
 
 	return 0;
 }
@@ -172,11 +178,9 @@ int SDL_AppInit(void **appstate, int argc, char **argv)
 	if (Start() != 0)
 		Die(SDL_GetError());
 
-	/* load game data in a thread */
-	asset_load_thread = SDL_CreateThread(AssetLoadThread, "AssetLoadThread", NULL);
-	if (!asset_load_thread)
-		Die("Failed to create AssetLoadThread");
-	SDL_DetachThread(asset_load_thread);
+	/* load game data */
+	if (LoadAssets() != 0)
+		Die(SDL_GetError());
 
 	return 0;
 }
@@ -188,13 +192,12 @@ void SDL_AppQuit(void *appstate)
 
 int SDL_AppIterate(void *appstate)
 {
-	R_Clear(0x00);
+	R_Clear(R_FindColor(0, 0, 0));
 
 	switch (gamestate)
 	{
 		case GAMESTATE_CONSOLE:
-			R_Draw();
-			R_DrawConsole(0xFF);
+			R_DrawConsole(R_FindColor(255, 255, 255));
 			break;
 
 		default:

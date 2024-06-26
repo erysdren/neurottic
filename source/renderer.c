@@ -24,6 +24,16 @@ SOFTWARE.
 
 #include "neurottic.h"
 
+static Uint8 global_palette[768] = {};
+
+void R_SetPalette_REAL(Uint8 *palette);
+
+void R_SetPalette(Uint8 *palette)
+{
+	SDL_memcpy(global_palette, palette, 768);
+	R_SetPalette_REAL(global_palette);
+}
+
 #define NUM_PLANES (4)
 
 /* create SDL_Surface from planar pic */
@@ -182,4 +192,32 @@ void R_DrawConsole(Uint8 color)
 
 	/* draw input line */
 	R_DrawString(0, RENDER_HEIGHT - 8, color, input);
+}
+
+/* find closest approximation of RGB color in the indexed palette */
+Uint8 R_FindColor(Uint8 r, Uint8 g, Uint8 b)
+{
+	int i, j;
+	int best_index = -1;
+	int best_dist = 0;
+	Uint8 rgb[3] = {r, g, b};
+
+	for (i = 0; i < 256; i++)
+	{
+		int dist = 0;
+
+		for (j = 0; j < 3; j++)
+		{
+			int d = SDL_abs(rgb[j] - global_palette[i * 3 + j]);
+			dist += d * d;
+		}
+
+		if (best_index == -1 || dist < best_dist)
+		{
+			best_index = i;
+			best_dist = dist;
+		}
+	}
+
+	return (Uint8)best_index;
 }

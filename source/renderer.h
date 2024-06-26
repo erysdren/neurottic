@@ -75,6 +75,9 @@ SDL_Surface *R_SurfaceFromPic(int w, int h, Uint8 *pixels);
 /* create SDL_Surface from planar pic */
 SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio);
 
+/* find closest approximation of RGB color in indexed palette */
+Uint8 R_FindColor(Uint8 r, Uint8 g, Uint8 b);
+
 #ifdef __cplusplus
 }
 #endif
