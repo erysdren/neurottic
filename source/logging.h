@@ -35,6 +35,9 @@ int Logging_Init(const char *filename, SDL_bool append);
 /* shutdown logging */
 void Logging_Quit(void);
 
+/* get an iostream status code as a string */
+const char *SDL_IOStream_StatusString(SDL_IOStatus status);
+
 /* log standard message */
 #define Log(...) ({SDL_Log(__VA_ARGS__); 0;})
 

@@ -83,3 +83,20 @@ void Logging_Quit(void)
 	if (log_file) SDL_CloseIO(log_file);
 	log_file = NULL;
 }
+
+const char *SDL_IOStream_StatusString(SDL_IOStatus status)
+{
+	static const char *codes[] = {
+		[SDL_IO_STATUS_READY] = "Ready",
+		[SDL_IO_STATUS_ERROR] = "Read or write I/O error",
+		[SDL_IO_STATUS_EOF] = "End of file",
+		[SDL_IO_STATUS_NOT_READY] = "Not ready",
+		[SDL_IO_STATUS_READONLY] = "Read only",
+		[SDL_IO_STATUS_WRITEONLY] = "Write only"
+	};
+
+	if (status < 0 || status > SDL_IO_STATUS_WRITEONLY)
+		return NULL;
+
+	return codes[status];
+}

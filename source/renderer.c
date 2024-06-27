@@ -37,39 +37,6 @@ void R_SetPalette(Uint8 *palette)
 #define NUM_PLANES (4)
 
 /* create SDL_Surface from planar pic */
-SDL_Surface *R_SurfaceFromPic(int w, int h, Uint8 *pixels)
-{
-	/* NOTE: this function is incredibly stupid! and probably dangerous! */
-
-	if (!w || !h || !pixels)
-		return NULL;
-
-	SDL_Surface *surface = SDL_CreateSurface(w * NUM_PLANES, h, SDL_PIXELFORMAT_INDEX8);
-	if (!surface)
-		return NULL;
-
-	/* copy plane by plane, pixel by pixel */
-	for (int p = 0; p < NUM_PLANES; p++)
-	{
-		for (int y = 0; y < h; y++)
-		{
-			Uint8 *row = &((Uint8 *)surface->pixels)[y * surface->pitch];
-
-			for (int x = 0; x < w; x++)
-			{
-				row[x * NUM_PLANES + p] = pixels[x];
-			}
-
-			pixels += w;
-		}
-	}
-
-	SDL_SetSurfaceColorKey(surface, SDL_TRUE, 0xFF);
-
-	return surface;
-}
-
-/* create SDL_Surface from planar pic */
 SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio)
 {
 	Uint8 w, h;
@@ -105,6 +72,7 @@ SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio)
 	if (!src)
 	{
 		LogError("R_SurfaceFromPicIO(): alloca() failed with %zu bytes", w);
+		SDL_DestroySurface(surface);
 		return NULL;
 	}
 
@@ -117,31 +85,7 @@ SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio)
 			/* read plane */
 			if (SDL_ReadIO(io, (void *)src, w) != w)
 			{
-				/* figure out what went wrong */
-				switch (SDL_GetIOStatus(io))
-				{
-					case SDL_IO_STATUS_ERROR:
-						LogError("R_SurfaceFromPicIO(): General IOStream error");
-						break;
-
-					case SDL_IO_STATUS_EOF:
-						LogError("R_SurfaceFromPicIO(): Reached end of IOStream early");
-						break;
-
-					case SDL_IO_STATUS_NOT_READY:
-						LogError("R_SurfaceFromPicIO(): IOStream not ready");
-						break;
-
-					case SDL_IO_STATUS_WRITEONLY:
-						LogError("R_SurfaceFromPicIO(): Write-only IOStream");
-						break;
-
-					default:
-						LogError("R_SurfaceFromPicIO(): Unknown IOStream error");
-						break;
-				}
-
-				/* cleanup and exit */
+				LogError("R_SurfaceFromPicIO(): %s", SDL_IOStream_StatusString(SDL_GetIOStatus(io)));
 				SDL_DestroySurface(surface);
 				return NULL;
 			}

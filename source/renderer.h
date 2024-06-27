@@ -70,9 +70,6 @@ void R_SetAngles(float x, float y, float z);
 void R_DrawString(int x, int y, Uint8 color, const char *fmt, ...);
 
 /* create SDL_Surface from planar pic */
-SDL_Surface *R_SurfaceFromPic(int w, int h, Uint8 *pixels);
-
-/* create SDL_Surface from planar pic */
 SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio);
 
 /* find closest approximation of RGB color in indexed palette */
