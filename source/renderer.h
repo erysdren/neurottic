@@ -46,7 +46,7 @@ void R_Clear(Uint8 color);
 int R_Draw(void);
 
 /* draw filled rect */
-void R_DrawRect(int x, int y, int w, int h, Uint8 color);
+int R_DrawRect(int x, int y, int w, int h, Uint8 color);
 
 /* draw surface */
 int R_DrawSurface(int x, int y, int w, int h, SDL_Surface *surface);

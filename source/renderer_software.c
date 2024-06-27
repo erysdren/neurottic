@@ -35,6 +35,7 @@ static SDL_Renderer *renderer = NULL;
 static SDL_Surface *surface8 = NULL;
 static SDL_Surface *surface24 = NULL;
 static SDL_Texture *texture = NULL;
+SDL_Surface *font = NULL;
 
 /* initialize renderer */
 int R_Init(void)
@@ -76,6 +77,31 @@ int R_Init(void)
 
 	SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
 
+	/* create font atlas */
+	font = SDL_CreateSurface(128 * 8, 8, SDL_PIXELFORMAT_INDEX8);
+	if (!font)
+		return -1;
+
+	SDL_FillSurfaceRect(font, NULL, 0);
+	SDL_SetSurfaceColorKey(font, SDL_TRUE, 0);
+
+	for (int c = 0; c < 128; c++)
+	{
+		char *bitmap = font8x8_basic[c];
+
+		for (int y = 0; y < 8; y++)
+		{
+			for (int x = 0; x < 8; x++)
+			{
+				if (bitmap[y] & 1 << x)
+				{
+					size_t ofs = y * font->pitch + x + (8 * c);
+					((Uint8 *)font->pixels)[ofs] = 255;
+				}
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -87,11 +113,13 @@ void R_Quit(void)
 	if (surface8) SDL_DestroySurface(surface8);
 	if (surface24) SDL_DestroySurface(surface24);
 	if (texture) SDL_DestroyTexture(texture);
+	if (font) SDL_DestroySurface(font);
 	window = NULL;
 	renderer = NULL;
 	surface8 = NULL;
 	surface24 = NULL;
 	texture = NULL;
+	font = NULL;
 }
 
 /* clear screen */
@@ -106,62 +134,11 @@ int R_Draw(void)
 	return 0;
 }
 
-/* clip rect to size */
-static SDL_bool clip_rect(int *x, int *y, int *w, int *h, int cx, int cy, int cw, int ch)
-{
-	int start_x, start_y, end_x, end_y;
-
-	start_x = cx;
-	start_y = cy;
-	end_x = cx + cw;
-	end_y = cy + ch;
-
-	/* it will never become visible */
-	if (*x >= end_x)
-		return SDL_TRUE;
-	if (*y >= end_y)
-		return SDL_TRUE;
-	if (*x + *w < start_x)
-		return SDL_TRUE;
-	if (*y + *h < start_y)
-		return SDL_TRUE;
-
-	/* clip to top edge */
-	if (*y < start_y)
-	{
-		*h += *y - start_y;
-		*y = start_y;
-	}
-
-	/* clip to bottom edge */
-	if (*y + *h >= end_y)
-	{
-		*h = end_y - *y;
-	}
-
-	/* clip to left edge */
-	if (*x < start_x)
-	{
-		*w += *x - start_x;
-		*x = start_x;
-	}
-
-	/* clip to right edge */
-	if (*x + *w >= end_x)
-	{
-		*w = end_x - *x;
-	}
-
-	return SDL_FALSE;
-}
-
 /* draw filled rect */
-void R_DrawRect(int x, int y, int w, int h, Uint8 color)
+int R_DrawRect(int x, int y, int w, int h, Uint8 color)
 {
-	if (clip_rect(&x, &y, &w, &h, 0, 0, surface8->w, surface8->h))
-		return;
-	for (int yy = y; yy < y + h; yy++)
-		SDL_memset(&((Uint8 *)surface8->pixels)[yy * surface8->pitch + x], color, w);
+	const SDL_Rect rect = {x, y, w, h};
+	return SDL_FillSurfaceRect(surface8, &rect, color);
 }
 
 /* draw surface */
@@ -236,7 +213,12 @@ void R_DrawString(int x, int y, Uint8 color, const char *fmt, ...)
 
 	for (int i = 0; i < SDL_strlen(buffer); i++)
 	{
-		draw_font8x8(x, y, color, font8x8_basic[buffer[i]]);
-		x += 8;
+		if (buffer[i] >= 0 && buffer[i] < 128)
+		{
+			SDL_Rect srcrect = {buffer[i] * 8, 0, 8, 8};
+			SDL_Rect dstrect = {x, y, 8, 8};
+			SDL_BlitSurface(font, &srcrect, surface8, &dstrect);
+			x += 8;
+		}
 	}
 }
