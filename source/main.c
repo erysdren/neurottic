@@ -182,6 +182,8 @@ int SDL_AppInit(void **appstate, int argc, char **argv)
 	if (LoadAssets() != 0)
 		Die(SDL_GetError());
 
+	R_SurfaceFromFontIO(LM_OpenLumpIO("NEWFNT1"), SDL_TRUE);
+
 	return 0;
 }
 
@@ -192,12 +194,12 @@ void SDL_AppQuit(void *appstate)
 
 int SDL_AppIterate(void *appstate)
 {
-	R_Clear(R_FindColor(0, 0, 0));
+	R_Clear(0x00);
 
 	switch (gamestate)
 	{
 		case GAMESTATE_CONSOLE:
-			R_DrawConsole(R_FindColor(255, 255, 255));
+			R_DrawConsole();
 			break;
 
 		default:

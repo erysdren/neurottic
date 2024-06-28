@@ -33,6 +33,12 @@ extern "C" {
 #define RENDER_HEIGHT (480)
 #define RENDER_HZ (35)
 
+typedef struct font {
+	int width;
+	int height;
+	SDL_Surface *surface;
+} font_t;
+
 /* initialize renderer */
 int R_Init(void);
 
@@ -52,13 +58,16 @@ int R_DrawRect(int x, int y, int w, int h, Uint8 color);
 int R_DrawSurface(int x, int y, int w, int h, SDL_Surface *surface);
 
 /* draw console */
-void R_DrawConsole(Uint8 color);
+void R_DrawConsole(void);
 
 /* flip to visible screen */
 void R_Flip(void);
 
 /* set palette colors */
 void R_SetPalette(Uint8 *palette);
+
+/* set palette on SDL_Surface */
+void R_SetSurfacePalette(SDL_Surface *surface, Uint8 *palette);
 
 /* set render position */
 void R_SetPosition(float x, float y, float z);
@@ -69,8 +78,11 @@ void R_SetAngles(float x, float y, float z);
 /* draw string at x,y with color */
 void R_DrawString(int x, int y, Uint8 color, const char *fmt, ...);
 
-/* create SDL_Surface from planar pic */
+/* create SDL_Surface from WAD pic */
 SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio);
+
+/* create SDL_Surface from WAD font */
+SDL_Surface *R_SurfaceFromFontIO(SDL_IOStream *io, SDL_bool closeio);
 
 /* find closest approximation of RGB color in indexed palette */
 Uint8 R_FindColor(Uint8 r, Uint8 g, Uint8 b);

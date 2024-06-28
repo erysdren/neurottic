@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include "neurottic.h"
 
-#include "thirdp/font8x8_basic.h"
+#include "font8x8.h"
 
 /*
  * software renderer implementation
@@ -78,16 +78,16 @@ int R_Init(void)
 	SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
 
 	/* create font atlas */
-	font = SDL_CreateSurface(128 * 8, 8, SDL_PIXELFORMAT_INDEX8);
+	font = SDL_CreateSurface(256 * 8, 8, SDL_PIXELFORMAT_INDEX8);
 	if (!font)
 		return -1;
 
 	SDL_FillSurfaceRect(font, NULL, 0);
 	SDL_SetSurfaceColorKey(font, SDL_TRUE, 0);
 
-	for (int c = 0; c < 128; c++)
+	for (int c = 0; c < 256; c++)
 	{
-		char *bitmap = font8x8_basic[c];
+		char *bitmap = font8x8[c];
 
 		for (int y = 0; y < 8; y++)
 		{
@@ -182,25 +182,6 @@ void R_SetAngles(float x, float y, float z)
 
 }
 
-static void draw_font8x8(int x, int y, Uint8 color, char *bitmap)
-{
-	int xx, yy;
-
-	for (yy = y; yy < y + 8; yy++)
-	{
-		for (xx = x; xx < x + 8; xx++)
-		{
-			if (xx < 0 || yy < 0)
-				continue;
-			if (xx >= surface8->w || yy >= surface8->h)
-				break;
-
-			if (bitmap[yy - y] & 1 << xx - x)
-				((Uint8 *)surface8->pixels)[yy * surface8->pitch + xx] = color;
-		}
-	}
-}
-
 /* draw string at x,y with color */
 void R_DrawString(int x, int y, Uint8 color, const char *fmt, ...)
 {
@@ -213,7 +194,7 @@ void R_DrawString(int x, int y, Uint8 color, const char *fmt, ...)
 
 	for (int i = 0; i < SDL_strlen(buffer); i++)
 	{
-		if (buffer[i] >= 0 && buffer[i] < 128)
+		if (buffer[i] >= 0 && buffer[i] < 256)
 		{
 			SDL_Rect srcrect = {buffer[i] * 8, 0, 8, 8};
 			SDL_Rect dstrect = {x, y, 8, 8};

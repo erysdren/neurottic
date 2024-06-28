@@ -34,9 +34,22 @@ void R_SetPalette(Uint8 *palette)
 	R_SetPalette_REAL(global_palette);
 }
 
-#define NUM_PLANES (4)
+void R_SetSurfacePalette(SDL_Surface *surface, Uint8 *palette)
+{
+	SDL_Color colors[256];
 
-/* create SDL_Surface from planar pic */
+	for (int i = 0; i < 256; i++)
+	{
+		colors[i].r = palette[i * 3];
+		colors[i].g = palette[i * 3 + 1];
+		colors[i].b = palette[i * 3 + 2];
+	}
+
+	SDL_SetPaletteColors(surface->format->palette, colors, 0, 256);
+}
+
+/* create SDL_Surface from WAD pic */
+#define NUM_PLANES (4)
 SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio)
 {
 	Uint8 w, h;
@@ -111,9 +124,77 @@ SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio)
 
 	return surface;
 }
+#undef NUM_PLAN
+
+/* create SDL_Surface from WAD font */
+SDL_Surface *R_SurfaceFromFontIO(SDL_IOStream *io, SDL_bool closeio)
+{
+	Sint16 height;
+	Sint8 widths[256];
+	Sint16 charofs[256];
+	int max_width;
+
+	/* stoopid */
+	if (!io)
+	{
+		LogError("R_SurfaceFromFontIO(): NULL pointer passed as IOStream");
+		return NULL;
+	}
+
+	/* read height */
+	SDL_ReadS16LE(io, &height);
+
+	/* read widths and find max char width */
+	max_width = 0;
+	for (int i = 0; i < 256; i++)
+	{
+		SDL_ReadS8(io, &widths[i]);
+
+		if (widths[i] > max_width)
+			max_width = widths[i];
+	}
+
+	/* read charofs */
+	for (int i = 0; i < 256; i++)
+		SDL_ReadS16LE(io, &charofs[i]);
+
+	/* create surface */
+	SDL_Surface *surface = SDL_CreateSurface(max_width * 256, height, SDL_PIXELFORMAT_INDEX8);
+	if (!surface)
+		return NULL;
+
+	R_SetSurfacePalette(surface, global_palette);
+	// SDL_SetSurfaceColorKey(surface, SDL_TRUE, 0x00);
+
+	/* fill in font */
+	for (int i = 0; i < 256; i++)
+	{
+		SDL_SeekIO(io, charofs[i], SDL_IO_SEEK_SET);
+
+		Uint8 *glyph = (Uint8 *)alloca(widths[i] * height);
+
+		SDL_ReadIO(io, glyph, widths[i] * height);
+
+		Uint8 *ptr = glyph;
+		for (int x = 0; x < widths[i]; x++)
+		{
+			for (int y = 0; y < height; y++)
+			{
+				((Uint8 *)surface->pixels)[y * surface->pitch + x + (i * max_width)] = *ptr++;
+			}
+		}
+	}
+
+	SDL_DestroySurface(surface);
+
+	if (closeio)
+		SDL_CloseIO(io);
+
+	return NULL;
+}
 
 /* draw console */
-void R_DrawConsole(Uint8 color)
+void R_DrawConsole(void)
 {
 	int num_lines;
 	char *input = Console_GetInputLine();
@@ -125,7 +206,7 @@ void R_DrawConsole(Uint8 color)
 	{
 		if (lines[i])
 		{
-			R_DrawString(0, y, color, lines[i]);
+			R_DrawString(0, y, 0xFF, lines[i]);
 			y += 8;
 
 			/* leave room for input line */
@@ -135,7 +216,7 @@ void R_DrawConsole(Uint8 color)
 	}
 
 	/* draw input line */
-	R_DrawString(0, RENDER_HEIGHT - 8, color, input);
+	R_DrawString(0, RENDER_HEIGHT - 8, 0xFF, input);
 }
 
 /* find closest approximation of RGB color in the indexed palette */
