@@ -4,7 +4,7 @@ MIT License
 Copyright (c) 2024 erysdren (it/she/they)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
+this software and associated documentation files (the "Software", to deal in
 the Software without restriction, including without limitation the rights to
 use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 of the Software, and to permit persons to whom the Software is furnished to do
@@ -22,57 +22,45 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-#ifndef _NEUROTTIC_H_
-#define _NEUROTTIC_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "neurottic.h"
 
-/* libc */
-#include <math.h>
-#include <stdlib.h>
-#include <ctype.h>
+static char *FS_Paths[] = {
+	[FS_PATH_BASE] = NULL,
+	[FS_PATH_PREF] = NULL
+};
 
-/* SDL */
-#include <SDL3/SDL.h>
-#include <SDL3_net/SDL_net.h>
-#include <SDL3_mixer/SDL_mixer.h>
+int FS_Init(void)
+{
+	if ((FS_Paths[FS_PATH_BASE] = SDL_GetBasePath()) == NULL)
+		return -1;
 
-/* misc */
-#define ASIZE(a) (sizeof(a) / sizeof(a[0]))
+	if ((FS_Paths[FS_PATH_PREF] = SDL_GetPrefPath("Protostar LLC", "NEUROTTIC")) == NULL)
+		return -1;
 
-/* audio manager */
-#include "audio_manager.h"
-
-/* console */
-#include "console.h"
-
-/* filesystem */
-#include "filesystem.h"
-
-/* logging */
-#include "logging.h"
-
-/* lump manager */
-#include "lump_manager.h"
-
-/* main */
-#include "main.h"
-
-/* mapset */
-#include "mapset.h"
-
-/* math utilities */
-#include "math_utilities.h"
-
-/* renderer */
-#include "renderer.h"
-
-/* rlew compression */
-#include "rlew.h"
-
-#ifdef __cplusplus
+	return 0;
 }
-#endif
-#endif /* _NEUROTTIC_H_ */
+
+void FS_Quit(void)
+{
+	for (int i = 0; i < ASIZE(FS_Paths); i++)
+	{
+		if (FS_Paths[i] != NULL)
+			SDL_free(FS_Paths[i]);
+	}
+}
+
+SDL_IOStream *FS_OpenFile(const char *name, const char *mode, FS_Path path)
+{
+	static char filepath[1024];
+	SDL_IOStream *io;
+
+	/* checks */
+	if (!name || !mode)
+		return NULL;
+	if (path < FS_PATH_BASE || path > FS_PATH_PREF)
+		return NULL;
+
+	/* open */
+	SDL_snprintf(filepath, sizeof(filepath), "%s%s", FS_Paths[path], name);
+	return SDL_IOFromFile(filepath, mode);
+}

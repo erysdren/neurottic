@@ -86,8 +86,7 @@ SDL_IOStream *LM_OpenLumpIO(const char *name);
 
 /* get lump index by name
  *
- * returns -1 if the lump doesn't exist, and -2 if the lump only exists on
- * disk and not in a wad file
+ * returns -1 if the lump doesn't exist or only exists on disk
  */
 Sint32 LM_GetLumpIndex(const char *name);
 

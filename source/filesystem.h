@@ -23,56 +23,32 @@ SOFTWARE.
 */
 
 #pragma once
-#ifndef _NEUROTTIC_H_
-#define _NEUROTTIC_H_
+#ifndef _FILESYSTEM_H_
+#define _FILESYSTEM_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* libc */
-#include <math.h>
-#include <stdlib.h>
-#include <ctype.h>
+typedef enum FS_Path {
+	FS_PATH_BASE,
+	FS_PATH_PREF
+} FS_Path;
 
-/* SDL */
-#include <SDL3/SDL.h>
-#include <SDL3_net/SDL_net.h>
-#include <SDL3_mixer/SDL_mixer.h>
+int FS_Init(void);
+void FS_Quit(void);
 
-/* misc */
-#define ASIZE(a) (sizeof(a) / sizeof(a[0]))
-
-/* audio manager */
-#include "audio_manager.h"
-
-/* console */
-#include "console.h"
-
-/* filesystem */
-#include "filesystem.h"
-
-/* logging */
-#include "logging.h"
-
-/* lump manager */
-#include "lump_manager.h"
-
-/* main */
-#include "main.h"
-
-/* mapset */
-#include "mapset.h"
-
-/* math utilities */
-#include "math_utilities.h"
-
-/* renderer */
-#include "renderer.h"
-
-/* rlew compression */
-#include "rlew.h"
+/** opens a file for reading, writing or appending
+ *
+ * NOTE: only files in the FS_PATH_PREF path can be written or appended to.
+ *
+ * @param name path to file name
+ * @param mode mode string
+ * @param path base path to use
+ * @returns opened IOStream, or NULL on error
+ */
+SDL_IOStream *FS_OpenFile(const char *name, const char *mode, FS_Path path);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* _NEUROTTIC_H_ */
+#endif /* _FILESYSTEM_H_ */

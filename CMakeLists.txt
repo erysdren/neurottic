@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(NEUROTTIC)
+project(NEUROTTIC LANGUAGES C VERSION 0.0.1)
 
 set(NEUROTIC_EXEC neurottic)
 set(NEUROTTIC_SOURCES
 	${PROJECT_SOURCE_DIR}/source/audio_manager.c
 	${PROJECT_SOURCE_DIR}/source/console.c
 	${PROJECT_SOURCE_DIR}/source/darkwar.c
+	${PROJECT_SOURCE_DIR}/source/filesystem.c
 	${PROJECT_SOURCE_DIR}/source/logging.c
 	${PROJECT_SOURCE_DIR}/source/lump_manager.c
 	${PROJECT_SOURCE_DIR}/source/main.c

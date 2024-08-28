@@ -53,12 +53,22 @@ void R_SetSurfacePalette(SDL_Surface *surface, Uint8 *palette)
 SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio)
 {
 	Uint8 w, h;
+	SDL_Surface *surface;
 
 	/* stoopid */
 	if (!io)
 	{
 		LogError("R_SurfaceFromPicIO(): NULL pointer passed as IOStream");
 		return NULL;
+	}
+
+	/* check if it's a bmp from disk first */
+	surface = SDL_LoadBMP_IO(io, SDL_FALSE);
+	if (surface != NULL)
+	{
+		if (closeio)
+			SDL_CloseIO(io);
+		return surface;
 	}
 
 	/* read width */
@@ -76,7 +86,7 @@ SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio)
 	}
 
 	/* create surface */
-	SDL_Surface *surface = SDL_CreateSurface(w * NUM_PLANES, h, SDL_PIXELFORMAT_INDEX8);
+	surface = SDL_CreateSurface(w * NUM_PLANES, h, SDL_PIXELFORMAT_INDEX8);
 	if (!surface)
 		return NULL;
 
@@ -124,7 +134,7 @@ SDL_Surface *R_SurfaceFromPicIO(SDL_IOStream *io, SDL_bool closeio)
 
 	return surface;
 }
-#undef NUM_PLAN
+#undef NUM_PLANES
 
 /* create SDL_Surface from WAD font */
 SDL_Surface *R_SurfaceFromFontIO(SDL_IOStream *io, SDL_bool closeio)

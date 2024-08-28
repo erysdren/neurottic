@@ -368,7 +368,7 @@ Sint32 LM_GetLumpIndex(const char *name)
 		if ((io = SDL_IOFromFile(path, "rb")) != NULL)
 		{
 			SDL_CloseIO(io);
-			return LogError("LM_GetLumpIndex(): Lump \"%s\" has no valid index because it only exists on disk", name);
+			return -1;
 		}
 	}
 

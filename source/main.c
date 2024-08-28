@@ -43,8 +43,6 @@ static int gamestate = GAMESTATE_CONSOLE;
  * load assets
  */
 
-static SDL_bool assets_loaded = SDL_FALSE;
-
 int LoadAssets(void)
 {
 	/* add lumps searchpath */
@@ -62,8 +60,6 @@ int LoadAssets(void)
 	Uint8 *pal = (Uint8 *)LM_LoadLump("PAL", NULL);
 	R_SetPalette(pal);
 	SDL_free(pal);
-
-	assets_loaded = SDL_TRUE;
 
 	return 0;
 }
@@ -106,6 +102,7 @@ void Quit(void)
 	MS_UnloadMapSet();
 	AU_Quit();
 	LM_Quit();
+	FS_Quit();
 	Logging_Quit();
 	Console_Quit();
 	SDLNet_Quit();
@@ -120,6 +117,10 @@ int Start(void)
 
 	/* sdl_net */
 	if (SDLNet_Init() != 0)
+		return -1;
+
+	/* init fs */
+	if (FS_Init() != 0)
 		return -1;
 
 	/* init console */
@@ -172,7 +173,7 @@ void Die(const char *fmt, ...)
  * sdl_main callbacks
  */
 
-int SDL_AppInit(void **appstate, int argc, char **argv)
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
 {
 	/* startup systems */
 	if (Start() != 0)
@@ -192,7 +193,7 @@ void SDL_AppQuit(void *appstate)
 	Quit();
 }
 
-int SDL_AppIterate(void *appstate)
+SDL_AppResult SDL_AppIterate(void *appstate)
 {
 	R_Clear(0x00);
 
@@ -213,7 +214,7 @@ int SDL_AppIterate(void *appstate)
 	return 0;
 }
 
-int SDL_AppEvent(void *appstate, const SDL_Event *event)
+SDL_AppResult SDL_AppEvent(void *appstate, const SDL_Event *event)
 {
 	/* always quit */
 	if (event->type == SDL_EVENT_QUIT)
